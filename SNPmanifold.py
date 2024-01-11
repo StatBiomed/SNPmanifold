@@ -30,7 +30,7 @@ import warnings
 # In[ ]:
 
 
-def read_vcf_gz(path):
+def read_VCF_gz(path):
 
     with gzip.open(path, 'rb') as f:
         
@@ -130,50 +130,50 @@ class VAE_unnormalized(nn.Module):
 # In[ ]:
 
 
-def load_data(self, path, mitoSNP_mask, AD, DP, vcf, variant_name):
+def load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name):
     
     print("Start loading raw data.")
     
     if path != None:
     
-        vcf_raw = read_vcf_gz(path + "/cellSNP.base.vcf.gz")
-        is_vcf = True
+        VCF_raw = read_VCF_gz(path + "/cellSNP.base.VCF.gz")
+        is_VCF = True
         
-    elif path == None and vcf != None:
+    elif path == None and VCF != None:
         
-        vcf_raw = read_vcf_gz(vcf)
-        is_vcf = True
+        VCF_raw = read_VCF_gz(VCF)
+        is_VCF = True
         
-    elif path == None and vcf == None:
+    elif path == None and VCF == None:
         
-        vcf_raw = np.genfromtxt(fname = variant_name, delimiter = "\t")
-        is_vcf = False
+        VCF_raw = np.genfromtxt(fname = variant_name, delimiter = "\t")
+        is_VCF = False
         
-    if is_vcf == True:
+    if is_VCF == True:
     
-        mitoSNP_filter = np.ones(vcf_raw.shape[0])
+        mitoSNP_filter = np.ones(VCF_raw.shape[0])
     
-        for j in range(vcf_raw.shape[0]):
+        for j in range(VCF_raw.shape[0]):
 
-            if vcf_raw["CHROM"][j] == 'chrM' and vcf_raw["POS"][j] in mitoSNP_mask:
-
-                mitoSNP_filter[j] = 0
-
-            if vcf_raw["CHROM"][j] == 'chrMT' and vcf_raw["POS"][j] in mitoSNP_mask:
+            if VCF_raw["CHROM"][j] == 'chrM' and VCF_raw["POS"][j] in mitoSNP_mask:
 
                 mitoSNP_filter[j] = 0
 
-            if vcf_raw["CHROM"][j] == 'M' and vcf_raw["POS"][j] in mitoSNP_mask:
+            if VCF_raw["CHROM"][j] == 'chrMT' and VCF_raw["POS"][j] in mitoSNP_mask:
 
                 mitoSNP_filter[j] = 0
 
-            if vcf_raw["CHROM"][j] == 'MT' and vcf_raw["POS"][j] in mitoSNP_mask:
+            if VCF_raw["CHROM"][j] == 'M' and VCF_raw["POS"][j] in mitoSNP_mask:
+
+                mitoSNP_filter[j] = 0
+
+            if VCF_raw["CHROM"][j] == 'MT' and VCF_raw["POS"][j] in mitoSNP_mask:
 
                 mitoSNP_filter[j] = 0
 
         mitoSNP_filter = mitoSNP_filter.astype(bool)
 
-        vcf_raw = vcf_raw[mitoSNP_filter]
+        VCF_raw = VCF_raw[mitoSNP_filter]
     
     if path != None:
         
@@ -182,12 +182,12 @@ def load_data(self, path, mitoSNP_mask, AD, DP, vcf, variant_name):
         
     elif path == None:
         
-        if is_vcf == True:
+        if is_VCF == True:
         
             AD_raw = mmread(AD).toarray()[mitoSNP_filter, :].T
             DP_raw = mmread(DP).toarray()[mitoSNP_filter, :].T
             
-        elif is_vcf == False:
+        elif is_VCF == False:
             
             AD_raw = mmread(AD).toarray().T
             DP_raw = mmread(DP).toarray().T
@@ -202,11 +202,11 @@ def load_data(self, path, mitoSNP_mask, AD, DP, vcf, variant_name):
     AF_raw_missing_to_mean = torch.tensor(AF_raw_missing_to_mean).float()
     
     self.path = path
-    self.vcf_raw = vcf_raw
+    self.VCF_raw = VCF_raw
     self.mitoSNP_mask = mitoSNP_mask
-    self.is_vcf = is_vcf
+    self.is_VCF = is_VCF
     
-    if is_vcf == True:
+    if is_VCF == True:
         
         self.mitoSNP_filter = mitoSNP_filter
         
@@ -302,16 +302,16 @@ def filter_data(self):
     AF_filtered_missing_to_half[np.isnan(AF_filtered_missing_to_half)] = 0.5
     AF_filtered_missing_to_half = torch.tensor(AF_filtered_missing_to_half).float()
     
-    if self.is_vcf == True:
+    if self.is_VCF == True:
         
         pd.options.mode.chained_assignment = None
-        vcf_filtered = self.vcf_raw.iloc[SNP_filter, :]
-        vcf_filtered["TEXT"] = "chr:" + vcf_filtered["CHROM"].astype(str) + ", " + vcf_filtered["POS"].astype(str) + vcf_filtered["REF"] + ">" + vcf_filtered["ALT"]
+        VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
+        VCF_filtered["TEXT"] = "chr:" + VCF_filtered["CHROM"].astype(str) + ", " + VCF_filtered["POS"].astype(str) + VCF_filtered["REF"] + ">" + VCF_filtered["ALT"]
         pd.options.mode.chained_assignment = 'warn'
         
-    elif self.is_vcf == False:
+    elif self.is_VCF == False:
         
-        vcf_filtered = self.vcf_raw[SNP_filter]
+        VCF_filtered = self.VCF_raw[SNP_filter]
     
     self.cell_SNPread = cell_SNPread
     self.cell_SNPread_threshold = cell_SNPread_threshold
@@ -333,7 +333,7 @@ def filter_data(self):
     self.AF_filtered_missing_to_zero = AF_filtered_missing_to_zero
     self.AF_filtered_missing_to_mean = AF_filtered_missing_to_mean
     self.AF_filtered_missing_to_half = AF_filtered_missing_to_half
-    self.vcf_filtered = vcf_filtered
+    self.VCF_filtered = VCF_filtered
     
     print(f"Finish filtering low-quality data, {cell_total} cells and {SNP_total} SNPs will be used for downstream analysis.")
 
@@ -1182,13 +1182,13 @@ def tree(self, cluster_no, pair_no, SNP_no):
     clus_colors = pd.Series(assigned_label[cell_sorted]).map(dict(zip(np.arange(0, cluster_no), colors)))
     clus_colors.index = pd.RangeIndex(start = 1, stop = self.cell_total + 1, step = 1)
     
-    if self.is_vcf == True:
+    if self.is_VCF == True:
         
-        fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.vcf_filtered["TEXT"].to_numpy()[rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
+        fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
     
-    elif self.is_vcf == False:
+    elif self.is_VCF == False:
         
-        fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.vcf_filtered[rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
+        fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.VCF_filtered[rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
     
     fig.ax_col_colors.set_xticks(moving_average(np.cumsum([0] + list(cluster_size[cluster_order])), 2))
     fig.ax_col_colors.set_xticklabels(np.array(cluster_order))
@@ -1379,13 +1379,13 @@ def summary_phylogeny(self, SNP_no, dpi):
     clus_colors = pd.Series(self.assigned_label[self.cell_sorted]).map(dict(zip(np.arange(0, self.cluster_no), self.colors)))
     clus_colors.index = pd.RangeIndex(start = 1, stop = self.cell_total + 1, step = 1)
     
-    if self.is_vcf == True:
+    if self.is_VCF == True:
     
-        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.vcf_filtered["TEXT"].to_numpy()[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
+        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
         
-    elif self.is_vcf == False:
+    elif self.is_VCF == False:
         
-        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.vcf_filtered[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
+        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
     
     fig.ax_col_colors.set_xticks(moving_average(np.cumsum([0] + list(self.cluster_size[self.cluster_order])), 2))
     fig.ax_col_colors.set_xticklabels(np.array(self.cluster_order))
@@ -1423,12 +1423,12 @@ def summary_phylogeny(self, SNP_no, dpi):
 
 class SNP_VAE:
     
-    def __init__(self, path = None, mitoSNP_mask = [3107, 310], AD = None, DP = None, vcf = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized"):
+    def __init__(self, path = None, mitoSNP_mask = [3107, 310], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized"):
         
         self.SNPread = SNPread
         self.missing_value = missing_value
         self.cell_weight = cell_weight
-        load_data(self, path, mitoSNP_mask, AD, DP, vcf, variant_name)
+        load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name)
         
     def filtering(self):
         
