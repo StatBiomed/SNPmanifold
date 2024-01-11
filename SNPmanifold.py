@@ -136,7 +136,7 @@ def load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name):
     
     if path != None:
     
-        VCF_raw = read_VCF_gz(path + "/cellSNP.base.VCF.gz")
+        VCF_raw = read_VCF_gz(path + "/cellSNP.base.vcf.gz")
         is_VCF = True
         
     elif path == None and VCF != None:
