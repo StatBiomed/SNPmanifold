@@ -21,6 +21,6 @@ Replace `$myenv` with the environment name you prefer.
 
 2. Run 4 methods (filtering, training, clustering, phylogeny) in order.
 
-Each method can rerun sperately without reruning prior methods. `SNPmanifold_demo.ipynb` shows a demo for quick usage of SNPmanifold.
+Each method can rerun sperately without reruning prior methods. `SNPmanifold_demo.ipynb` shows a demo for quick usage of SNPmanifold on MKN45 cancer cell line using mitochondrial SNPs.
 
 ## Key Attributes
