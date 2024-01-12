@@ -1,8 +1,8 @@
 # SNPmanifold
 
-SNPmanifold is a Python package that learns a representative manifold for single cells based on their SNPs (Single-Nucleotide Polymorphisms) using VAE (Variational AutoEncoder). It takes AD matrix, DP matrix, and VCF (or variant_name.tsv) as inputs. You can compile them from bam file(s) either conveniently by cellSNP-lite or by your custom scripts.
+SNPmanifold is a Python package that learns a representative manifold for single cells based on their SNPs (Single-Nucleotide Polymorphisms) using VAE (Variational AutoEncoder) and UMAP (Uniform Manifold Approximation and Projection). It takes AD matrix, DP matrix, and VCF (or variant_name.tsv) as inputs. You can compile them from bam file(s) either conveniently by cellSNP-lite or by your custom scripts.
 
-SNPmanifold first performs simple filtering on AD matrix and DP matrix for high-quality cells and SNPs. It then trains a VAE to learn a representative manifold for single cells according to their SNP-allelic ratios (AD/DP). Finally, it classifies cells into clones and infer their phylogeny based on the manifold. 
+SNPmanifold first performs simple filtering on AD matrix and DP matrix for high-quality cells and SNPs. It then trains VAE and UMAP to learn a representative manifold for single cells according to their SNP-allelic ratios (AD/DP). Finally, it classifies cells into clones and infer their phylogeny based on the manifold. 
 
 ## Installation
 
