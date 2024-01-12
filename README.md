@@ -25,6 +25,40 @@ Replace `$myenv` with the environment name you prefer.
 
 Each method can rerun sperately without reruning prior methods. `SNPmanifold_demo.ipynb` shows a demo for quick usage of SNPmanifold on MKN45 cancer cell line using mitochondrial SNPs.
 
+## Key Parameters
+
+### SNP_VAE():
+
+`path`
+
+`AD`
+
+`DP` 
+
+`VCF` 
+
+`variant_name`
+
+### training():
+
+`num_epoch` 
+
+`stepsize`
+
+`z_dim`
+
+`num_batch`
+
+### clustering():
+
+`max_cluster`
+
+### phylogeny():
+
+`cluster_no`
+
+`SNP_no`
+
 ## Key Attributes
 
 `cell_filter`
