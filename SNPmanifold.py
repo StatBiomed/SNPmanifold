@@ -146,7 +146,7 @@ def load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name):
         
     elif path == None and VCF == None:
         
-        VCF_raw = np.genfromtxt(fname = variant_name, delimiter = "\t")
+        VCF_raw = pd.read_csv(variant_name, delimiter = "\t", header = None)
         is_VCF = False
         
     if is_VCF == True:
@@ -311,7 +311,7 @@ def filter_data(self):
         
     elif self.is_VCF == False:
         
-        VCF_filtered = self.VCF_raw[SNP_filter]
+        VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
     
     self.cell_SNPread = cell_SNPread
     self.cell_SNPread_threshold = cell_SNPread_threshold
@@ -1188,7 +1188,7 @@ def tree(self, cluster_no, pair_no, SNP_no):
     
     elif self.is_VCF == False:
         
-        fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.VCF_filtered[rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
+        fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
     
     fig.ax_col_colors.set_xticks(moving_average(np.cumsum([0] + list(cluster_size[cluster_order])), 2))
     fig.ax_col_colors.set_xticklabels(np.array(cluster_order))
@@ -1385,7 +1385,7 @@ def summary_phylogeny(self, SNP_no, dpi):
         
     elif self.is_VCF == False:
         
-        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
+        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6))
     
     fig.ax_col_colors.set_xticks(moving_average(np.cumsum([0] + list(self.cluster_size[self.cluster_order])), 2))
     fig.ax_col_colors.set_xticklabels(np.array(self.cluster_order))
