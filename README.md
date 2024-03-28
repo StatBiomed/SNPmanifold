@@ -17,6 +17,12 @@ pip install umap-learn
 
 Replace `$myenv` with the environment name you prefer.
 
+Alternatively, you can now install >=0.0.1 version via this command line:
+
+```bash
+pip install -U git+https://github.com/StatBiomed/SNPmanifold
+```
+
 ## Quick Usage
 
 1. Import SNPmanifold and create an object of the class SNP_VAE.
@@ -26,6 +32,10 @@ Replace `$myenv` with the environment name you prefer.
 Each method can rerun sperately without reruning prior methods. `SNPmanifold_demo.ipynb` shows a demo for quick usage of SNPmanifold on MKN45 cancer cell line using mitochondrial SNPs.
 
 ## Key Parameters
+
+```python
+from SNPmanifold import SNP_VAE
+```
 
 ### SNP_VAE():
 
