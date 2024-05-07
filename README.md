@@ -16,9 +16,8 @@ pip install -U SNPmanifold
 pip install -U git+https://github.com/StatBiomed/SNPmanifold
 ```
 
-Or set a conda environment before installing
-
-Credits to Xinyi Lin.
+Or set a conda environment before installing (credits to Xinyi Lin).
+Replace `$myenv` with the environment name you prefer.
 
 ```bash
 conda create -n $myenv python=3.8
@@ -27,9 +26,11 @@ conda activate $myenv
 pip install -U git+https://github.com/StatBiomed/SNPmanifold
 ```
 
-Replace `$myenv` with the environment name you prefer.
-
 ## Quick Usage
+
+Full documentation is at https://SNPmanifold.readthedocs.io. 
+
+Here is a quick start:
 
 1. Import SNPmanifold and create an object of the class SNP_VAE.
 
