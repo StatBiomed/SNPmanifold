@@ -1,3 +1,4 @@
+===
 API
 ===
 
@@ -14,7 +15,7 @@ Objects of type :class:`~SNPmanifold.SNP_VAE` for clustering with binomial
 mixture model
 
 .. autoclass:: SNPmanifold.SNP_VAE
-   :members:
+   :members: __init__, filtering, training, clustering, phylogeny
 
 VAE module
 ----------

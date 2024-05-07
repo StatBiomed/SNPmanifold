@@ -13,7 +13,7 @@ Home
 
 
 About SNPmanifold
-==========
+=================
 
 TO ADD
 
@@ -23,7 +23,7 @@ References
 
 * Hoi Man Chung and Yuanhua Huang. `Interpretable variational encoding of 
   genotypes identifies comprehensive clonality and lineages in single cells 
-  geometrically<https://>`_.
+  geometrically <https://>`_.
   \ **BioRxiv**\ to appear.
 
 

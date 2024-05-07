@@ -33,15 +33,15 @@ sys.path.insert(0, os.path.abspath("_ext"))
 
 from urllib.request import urlretrieve
 
-notebooks_url = "https://github.com/StatBiomed/SNPmanifold/raw/main/"
+notebooks_url = "https://github.com/StatBiomed/SNPmanifold/raw/main/examples/"
 notebooks = [
-    "examples/SNPmanifold_demo.ipynb"
+    "SNPmanifold_demo.ipynb"
 ]
 for nb in notebooks:
     try:
         urlretrieve(notebooks_url + nb, nb)
     except:
-        raise ValueError(f'{nb} cannot be retrieved.')
+        raise ValueError(f'{notebooks_url + nb} cannot be retrieved.')
 
 
 # -- General configuration ------------------------------------------------

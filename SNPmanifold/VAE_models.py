@@ -35,7 +35,7 @@ class VAE_base(nn.Module):
         return torch.sigmoid(self.fc3(z))
 
     def forward(self, x, cell_SNPread_weight=None):
-        """"
+        """
         Forward function with optional normalization
         
         Parameters

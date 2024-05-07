@@ -1,5 +1,6 @@
 .DS_Store*
 .vscode/
+docs/*ipynb
 temp/
 
 # Byte-compiled / optimized / DLL files
