@@ -6,79 +6,44 @@ SNPmanifold first performs simple filtering on AD matrix and DP matrix for high-
 
 ## Installation
 
-Credits to Xinyi Lin. 
+Quick install can be achieved via pip
 
-```python3
+```bash
+# for published version
+pip install -U SNPmanifold
+
+# or developing version
+pip install -U git+https://github.com/StatBiomed/SNPmanifold
+```
+
+Or set a conda environment before installing
+
+Credits to Xinyi Lin.
+
+```bash
 conda create -n $myenv python=3.8
 conda activate $myenv
-conda install matplotlib networkx numpy pandas scipy seaborn scikit-learn pytorch torchvision torchaudio cpuonly -c pytorch
-pip install umap-learn
+
+pip install -U git+https://github.com/StatBiomed/SNPmanifold
 ```
 
 Replace `$myenv` with the environment name you prefer.
-
-Alternatively, you can now install >=0.0.1 version via this command line:
-
-```bash
-pip install -U git+https://github.com/StatBiomed/SNPmanifold
-```
 
 ## Quick Usage
 
 1. Import SNPmanifold and create an object of the class SNP_VAE.
 
-2. Run 4 methods (filtering, training, clustering, phylogeny) in order.
-
-Each method can rerun sperately without reruning prior methods. `SNPmanifold_demo.ipynb` shows a demo for quick usage of SNPmanifold on MKN45 cancer cell line using mitochondrial SNPs.
-
-## Key Parameters
-
 ```python
 from SNPmanifold import SNP_VAE
 ```
 
-### SNP_VAE():
+2. Run 4 methods (filtering, training, clustering, phylogeny) in order.
 
-`path`
+  Each method can rerun sperately without reruning prior methods. 
 
-`AD`
+* The [demo page](https://snpmanifold.readthedocs.io/en/latest/SNPmanifold_demo.html) 
+  and notebook [SNPmanifold_demo.ipynb](./examples/SNPmanifold_demo.ipynb) show 
+  a demo for quick usage of SNPmanifold on MKN45 cancer cell line using 
+  mitochondrial SNPs.
 
-`DP` 
-
-`VCF` 
-
-`variant_name`
-
-### training():
-
-`num_epoch` 
-
-`stepsize`
-
-`z_dim`
-
-`num_batch`
-
-### clustering():
-
-`max_cluster`
-
-### phylogeny():
-
-`cluster_no`
-
-`SNP_no`
-
-## Key Attributes
-
-`cell_filter`
-
-`SNP_filter`
-
-`pc`
-
-`embedding_2d`
-
-`embedding_3d`
-
-`assigned_label`
+* See how to use it via the [API page](https://snpmanifold.readthedocs.io/en/latest/API.html#main-object).
