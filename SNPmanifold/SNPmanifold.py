@@ -1353,41 +1353,43 @@ def summary_phylogeny(self, SNP_no, dpi):
 class SNP_VAE:
     
     def __init__(self, path = None, mitoSNP_mask = [3107, 310], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized"):
-        
+        """
+        TO ADD
+        """
         self.SNPread = SNPread
         self.missing_value = missing_value
         self.cell_weight = cell_weight
         load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name)
         
     def filtering(self):
-        
+        """TO ADD"""
         filter_data(self)
         
     def training(self, num_epoch = 1000, stepsize = 0.0001, z_dim = None, beta = 0, num_batch = 5):
-        
+        """TO ADD"""
         train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch)
         
     def clustering(self, max_cluster = 15):
-
+        """TO ADD"""
         kmeans_clustering(self, max_cluster)
         
     def phylogeny(self, cluster_no, pair_no = 16, SNP_no = 50):
-        
+        """TO ADD"""
         tree(self, cluster_no, pair_no, SNP_no)
         
     def filtering_summary(self, dpi = mpl.rcParams['figure.dpi']):
-        
+        """TO ADD"""
         summary_filtering(self, dpi)
         
     def training_summary(self, dpi = mpl.rcParams['figure.dpi']):
-        
+        """TO ADD"""
         summary_training(self, dpi)
         
     def clustering_summary(self, dpi = mpl.rcParams['figure.dpi']):
-        
+        """TO ADD"""
         summary_clustering(self, dpi)
         
     def phylogeny_summary(self, SNP_no = None, dpi = mpl.rcParams['figure.dpi']):
-        
+        """TO ADD"""
         summary_phylogeny(self, SNP_no, dpi)
 
