@@ -1,3 +1,4 @@
 
 # Import classes or functions here
-from .SNPmanifold import *
+from .VAE_models import VAE_base
+from .SNPmanifold import SNP_VAE

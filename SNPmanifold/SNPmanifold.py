@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
 import gzip
 import io
 import matplotlib as mpl
@@ -26,8 +23,7 @@ from torch.utils.data import DataLoader
 import umap.umap_ as umap
 import warnings
 
-
-# In[ ]:
+from .VAE_models import VAE_base, VAE_normalized, VAE_unnormalized
 
 
 def read_VCF_gz(path):
@@ -58,73 +54,6 @@ def moving_average(a, n):
 # In[ ]:
 
 
-class VAE_normalized(nn.Module):
-    
-    def __init__(self, obs_dim, z_dim):
-
-        super(VAE_normalized, self).__init__()
-        self.fc1 = nn.Linear(obs_dim, z_dim, bias = False)
-        self.fc2 = nn.Linear(obs_dim, z_dim, bias = False)
-        self.fc3 = nn.Linear(z_dim, obs_dim)
-
-    def encode(self, x, cell_SNPread_weight):
-
-        return self.fc1(torch.logit(x, eps = 0.01)) / cell_SNPread_weight * torch.mean(cell_SNPread_weight), self.fc2(torch.logit(x, eps = 0.01)) / cell_SNPread_weight * torch.mean(cell_SNPread_weight)
-
-    def reparameterize(self, mu, log_var):
-
-        std = torch.exp(log_var / 2)
-        eps = torch.randn_like(std)
-
-        return mu + eps * std
-
-    def decode(self, z):
-
-        return torch.sigmoid(self.fc3(z))
-
-    def forward(self, x, cell_SNPread_weight):
-
-        mu, log_var = self.encode(x, cell_SNPread_weight) 
-        z = self.reparameterize(mu, log_var)
-        x_reconst_mu = self.decode(z)
-
-        return x_reconst_mu, mu, log_var
-
-
-# In[ ]:
-
-
-class VAE_unnormalized(nn.Module):
-    
-    def __init__(self, obs_dim, z_dim):
-
-        super(VAE_unnormalized, self).__init__()
-        self.fc1 = nn.Linear(obs_dim, z_dim, bias = False)
-        self.fc2 = nn.Linear(obs_dim, z_dim, bias = False)
-        self.fc3 = nn.Linear(z_dim, obs_dim)
-
-    def encode(self, x):
-
-        return self.fc1(torch.logit(x, eps = 0.01)), self.fc2(torch.logit(x, eps = 0.01))
-
-    def reparameterize(self, mu, log_var):
-
-        std = torch.exp(log_var / 2)
-        eps = torch.randn_like(std)
-
-        return mu + eps * std
-
-    def decode(self, z):
-
-        return torch.sigmoid(self.fc3(z))
-
-    def forward(self, x):
-
-        mu, log_var = self.encode(x) 
-        z = self.reparameterize(mu, log_var)
-        x_reconst_mu = self.decode(z)
-
-        return x_reconst_mu, mu, log_var
 
 
 # In[ ]:

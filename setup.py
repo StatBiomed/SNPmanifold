@@ -10,15 +10,6 @@ from codecs import open
 from os import path
 from pathlib import Path
 
-reqs = [
-    'numpy>=1.9.0', 
-    'scipy>=1.4.0', 
-    'matplotlib', 
-    'pandas',
-    'scikit-learn',
-    'torch'
-]
-
 
 here = path.abspath(path.dirname(__file__))
 
@@ -72,7 +63,9 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     
     # install_requires=reqs,
-    install_requires=reqs,
+    install_requires=[
+        l.strip() for l in Path('requirements.txt').read_text('utf-8').splitlines()
+    ],
 
     include_package_data=True,
     # package_data={'': ['datasets/*.csv', 'datasets/*.csv.gz']},
