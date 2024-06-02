@@ -33,7 +33,7 @@ sys.path.insert(0, os.path.abspath("_ext"))
 
 from urllib.request import urlretrieve
 
-notebooks_url = "https://github.com/StatBiomed/SNPmanifold/raw/main/examples/"
+notebooks_url = "https://github.com/StatBiomed/SNPmanifold/raw/main/"
 notebooks = [
     "SNPmanifold_demo.ipynb"
 ]

@@ -16,13 +16,3 @@ mixture model
 
 .. autoclass:: SNPmanifold.SNP_VAE
    :members: 
-
-VAE module
-----------
-
-Objects of type :class:`~SNPmanifold.VAE_base` for clustering with binomial
-mixture model
-
-.. autoclass:: SNPmanifold.VAE_base
-   :members: __init__, encode, decode, reparameterize, forward
-

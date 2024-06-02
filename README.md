@@ -43,7 +43,7 @@ from SNPmanifold import SNP_VAE
   Each method can rerun sperately without reruning prior methods. 
 
 * The [demo page](https://snpmanifold.readthedocs.io/en/latest/SNPmanifold_demo.html) 
-  and notebook [SNPmanifold_demo.ipynb](./SNPmanifold_demo.ipynb) show 
+  and notebook [SNPmanifold_demo.ipynb](./examples/SNPmanifold_demo.ipynb) show 
   a demo for quick usage of SNPmanifold on MKN45 cancer cell line using 
   mitochondrial SNPs.
 
