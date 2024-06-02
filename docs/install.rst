@@ -22,7 +22,7 @@ line, and add ``-U`` for upgrading:
   pip install -U SNPmanifold
 
 Alternatively, you can install from this GitHub repository for the latest (often 
-development) version by the following command line
+development) version by the following command line:
 
 .. code-block:: bash
 
