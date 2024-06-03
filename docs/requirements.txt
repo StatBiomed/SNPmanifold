@@ -1,6 +1,6 @@
 # Just until rtd.org understands pyproject.toml
 
-SNPmanifold>=0.0.3
+SNPmanifold>=0.0.4
 
 setuptools
 setuptools_scm
