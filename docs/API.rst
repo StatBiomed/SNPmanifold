@@ -17,5 +17,7 @@ mixture model
 Attributes
 ~~~~~~~~~~~~~~~~~~~~
 
+**latent**
+
 .. autoclass:: SNPmanifold.SNP_VAE
    :members: 
