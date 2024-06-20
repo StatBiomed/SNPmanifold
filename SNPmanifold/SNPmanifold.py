@@ -137,7 +137,7 @@ class SNP_VAE:
 
         Parameters
         ----------
-        dpi: integer
+        dpi: float
             dpi resolution for figures
 
         """
@@ -151,7 +151,7 @@ class SNP_VAE:
 
         Parameters
         ----------
-        dpi: integer
+        dpi: float
             dpi resolution for figures
 
         """
@@ -165,7 +165,7 @@ class SNP_VAE:
 
         Parameters
         ----------
-        dpi: integer
+        dpi: float
             dpi resolution for figures
 
         """
@@ -182,7 +182,7 @@ class SNP_VAE:
         SNP_no: integer
             number of top-ranked SNPs to be visualized in heatmap
 
-        dpi: integer
+        dpi: float
             dpi resolution for figures
 
         bad_color: string
@@ -214,7 +214,7 @@ class SNP_VAE:
         SNP_name: string
             name of the SNP to visualize
 
-        dpi: integer
+        dpi: float
             dpi resolution for figure
 
         """
