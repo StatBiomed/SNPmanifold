@@ -17,7 +17,7 @@ mixture model
 Attributes
 -----------
 
-After running SNP_VAE.filtering()
+After running SNP_VAE.filtering():
 ~~~~~~~~~~~~~~~~~~~~
 
 **cell_filter** (np.array of booleans) - boolean filter for all input cells
@@ -36,7 +36,7 @@ After running SNP_VAE.filtering()
 
 **VCF_filtered** (pd.DataFrame) - VCF after filtering which contains variant names
 
-After running SNP_VAE.training()
+After running SNP_VAE.training():
 ~~~~~~~~~~~~~~~~~~~~
 
 **model** (VAE_normalized) - trained VAE model implemented in PyTorch
@@ -49,7 +49,7 @@ After running SNP_VAE.training()
 
 **embedding_3d** (np.array with shape (cell_total, 3)) - 3D UMAP embedding of the latent space
 
-After running SNP_VAE.clustering() and SNP_VAE.phylogeny()
+After running SNP_VAE.clustering() and SNP_VAE.phylogeny():
 ~~~~~~~~~~~~~~~~~~~~
 
 **cluster_no** (integer) - total number of clusters 
