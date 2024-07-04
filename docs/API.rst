@@ -17,7 +17,8 @@ mixture model
 Attributes
 ~~~~~~~~~~~~~~~~~~~~
 
-**latent** (np.array of shape(cell_total, z)): latent factors of all filtered cells
+**cell_total** (integer) - total number of cells after filtering
+**latent** (np.array of shape(cell_total, z)) - latent factors of all cells after filtering
 
 .. autoclass:: SNPmanifold.SNP_VAE
    :members: 
