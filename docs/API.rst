@@ -67,6 +67,7 @@ After running SNP_VAE.clustering() and SNP_VAE.phylogeny():
 **p_value** (np.array with shape (SNP_total)) - P-values of all SNPs after filtering
 
 **rank_SNP** (np.array with shape (SNP_total)) - ranking of SNPs from the lowest p-value
+
 Functions
 -----------
 
