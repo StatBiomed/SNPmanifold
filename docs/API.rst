@@ -60,14 +60,13 @@ After running SNP_VAE.clustering() and SNP_VAE.phylogeny():
 
 **colors** (np.array with shape (cluster_no, 4)) - colors of all clusters in figures
 
-**edge** (list of tuples with length (cluster_no - 1)) - all connected edges in the cluster phylogenetic tree
+**edge** (list of tuples with length (cluster_no - 1)) - all connected edges in the phylogenetic tree
 
 **f_stat** (np.array with shape (SNP_total)) - F-statistics of all SNPs after filtering
 
 **p_value** (np.array with shape (SNP_total)) - P-values of all SNPs after filtering
 
-**rank_SNP** (np.array with shape (SNP_total)) - ranking of all SNPs after filtering from the lowest p-value to the highest
-
+**rank_SNP** (np.array with shape (SNP_total)) - ranking of SNPs from the lowest p-value
 Functions
 -----------
 
