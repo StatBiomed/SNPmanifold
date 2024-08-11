@@ -11,8 +11,35 @@ Import SNPmanifold as::
 Main Object
 -----------
 
-Objects of type :class:`~SNPmanifold.SNP_VAE` for clustering with binomial
+Object of type :class:`~SNPmanifold.SNP_VAE` for clustering with binomial
 mixture model
+
+Parameters to initialize and load data into the main object SNP_VAE:
+~~~~~~~~~~~~~~~~~~~~
+
+**path** (string) - path of cellSNP-lite output folder which contains cellSNP.tag.AD.mtx, cellSNP.tag.DP.mtx, and cellSNP.base.vcf.gz
+
+**mitoSNP_mask** (list of integers) - positions of mitochondrial SNPs to be masked due to artefacts (default: [3107, 310])
+
+**AD** (string) - path of AD matrix in scipy.sparse.coo_matrix format
+
+**DP** (string) - path of DP matrix in scipy.sparse.coo_matrix format
+            
+**VCF** (string) - path of VCF.gz file
+
+**variant_name** (string) path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
+            
+**SNPread** (string) optional observed-SNP normalization, 'normalized' or 'unnormalized' (default: 'normalized')
+        
+**missing_value** (float between 0 and 1) impute value for missing allele frequency in AF matrix, i.e. DP = 0 (default: 0.5)
+        
+**cell_weight** (string) optional cost normalization for each cell, 'normalized' or 'unnormalized' (default: 'unnormalized')
+
+Functions
+-----------
+
+.. autoclass:: SNPmanifold.SNP_VAE
+   :members: 
 
 Attributes
 -----------
@@ -67,9 +94,3 @@ After running SNP_VAE.clustering() and SNP_VAE.phylogeny():
 **p_value** (np.array with shape (SNP_total)) - P-values of all SNPs after filtering
 
 **rank_SNP** (np.array with shape (SNP_total)) - ranking of SNPs from the lowest p-value
-
-Functions
------------
-
-.. autoclass:: SNPmanifold.SNP_VAE
-   :members: 
