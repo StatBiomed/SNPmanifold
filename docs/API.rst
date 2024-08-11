@@ -27,13 +27,13 @@ Parameters to initialize and load data into the main object SNP_VAE:
             
 **VCF** (string) - path of VCF.gz file
 
-**variant_name** (string) path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
+**variant_name** (string) - path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
             
-**SNPread** (string) optional observed-SNP normalization, 'normalized' or 'unnormalized' (default: 'normalized')
+**SNPread** (string) - optional observed-SNP normalization, 'normalized' or 'unnormalized' (default: 'normalized')
         
-**missing_value** (float between 0 and 1) impute value for missing allele frequency in AF matrix, i.e. DP = 0 (default: 0.5)
+**missing_value** (float between 0 and 1) - impute value for missing allele frequency in AF matrix, i.e. DP = 0 (default: 0.5)
         
-**cell_weight** (string) optional cost normalization for each cell, 'normalized' or 'unnormalized' (default: 'unnormalized')
+**cell_weight** (string) - optional cost normalization for each cell, 'normalized' or 'unnormalized' (default: 'unnormalized')
 
 Functions
 -----------
