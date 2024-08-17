@@ -21,9 +21,9 @@ Parameters to initialize and load data into the main object SNP_VAE:
 
 **mitoSNP_mask** (list of integers) - positions of mitochondrial SNPs to be masked due to artefacts (default: [3107, 310])
 
-**AD** (string) - path of AD matrix in scipy.sparse.coo_matrix format
+**AD** (string) - path of AD matrix in scipy.sparse.coo_matrix format with shape (SNP, cell)
 
-**DP** (string) - path of DP matrix in scipy.sparse.coo_matrix format
+**DP** (string) - path of DP matrix in scipy.sparse.coo_matrix format with shape (SNP, cell)
             
 **VCF** (string) - path of VCF.gz file
 
