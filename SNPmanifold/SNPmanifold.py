@@ -58,7 +58,7 @@ class SNP_VAE:
         
         """
         
-        filter_data(self)
+        filter_data(self, save_memory)
         
     def training(self, num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0, num_batch = 5):
         
