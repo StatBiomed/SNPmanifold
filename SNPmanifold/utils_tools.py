@@ -43,7 +43,7 @@ def moving_average(a, n):
     return ret[n-1: ] / n
 
 
-def filter_data(self):
+def filter_data(self, save_memory):
     
     """Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP"""
     
@@ -137,6 +137,12 @@ def filter_data(self):
     elif self.is_VCF == False:
         
         VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
+
+    if save_memory == True:
+
+        del self.AD_raw
+        del self.DP_raw
+        del self.AF_raw_missing_to_mean
     
     self.cell_SNPread = cell_SNPread
     self.cell_SNPread_threshold = cell_SNPread_threshold
@@ -1056,61 +1062,61 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
 
     plt.show()
     
-    fig, axs = plt.subplots(1, cluster_no)
-    fig.set_size_inches(6 * cluster_no, 5)
+    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
     fig.suptitle("Scatter plot of PCA")
     
     for m in range(cluster_no):
         
-        axs[m].set_title("Cluster " + str(m))
-        axs[m].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
-        axs[m].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = colors[m])
-        axs[m].set_xticks([])
-        axs[m].set_yticks([])
-        axs[m].set_xlim(self.xlim_pc)
-        axs[m].set_ylim(self.ylim_pc)
+        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
+        axs[np.floor(m / 5), m % 5].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
+        axs[np.floor(m / 5), m % 5].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = colors[m])
+        axs[np.floor(m / 5), m % 5].set_xticks([])
+        axs[np.floor(m / 5), m % 5].set_yticks([])
+        axs[np.floor(m / 5), m % 5].set_xlim(self.xlim_pc)
+        axs[np.floor(m / 5), m % 5].set_ylim(self.ylim_pc)
         
     plt.show()
     
-    fig, axs = plt.subplots(1, cluster_no)
-    fig.set_size_inches(6 * cluster_no, 5)
+    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
     fig.suptitle("Scatter plot of UMAP")
     
     for m in range(cluster_no):
         
-        axs[m].set_title("Cluster " + str(m))
-        axs[m].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
-        axs[m].scatter(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], s = 5, color = colors[m])
-        axs[m].set_xticks([])
-        axs[m].set_yticks([])
-        axs[m].set_xlim(self.xlim_embedding_2d)
-        axs[m].set_ylim(self.ylim_embedding_2d)
+        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
+        axs[np.floor(m / 5), m % 5].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
+        axs[np.floor(m / 5), m % 5].scatter(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], s = 5, color = colors[m])
+        axs[np.floor(m / 5), m % 5].set_xticks([])
+        axs[np.floor(m / 5), m % 5].set_yticks([])
+        axs[np.floor(m / 5), m % 5].set_xlim(self.xlim_embedding_2d)
+        axs[np.floor(m / 5), m % 5].set_ylim(self.ylim_embedding_2d)
         
     plt.show()
     
-    fig, axs = plt.subplots(1, cluster_no)
-    fig.set_size_inches(6 * cluster_no, 5)
+    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
     fig.suptitle("Density plot of PCA")
     
     for m in range(cluster_no):
         
-        axs[m].set_title("Cluster " + str(m))
-        axs[m].hist2d(self.pc[clusters[m], 0], self.pc[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
-        axs[m].set_xticks([])
-        axs[m].set_yticks([])
+        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
+        axs[np.floor(m / 5), m % 5].hist2d(self.pc[clusters[m], 0], self.pc[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
+        axs[np.floor(m / 5), m % 5].set_xticks([])
+        axs[np.floor(m / 5), m % 5].set_yticks([])
         
     plt.show()
     
-    fig, axs = plt.subplots(1, cluster_no)
-    fig.set_size_inches(6 * cluster_no, 5)
+    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
     fig.suptitle("Density plot of UMAP")
     
     for m in range(cluster_no):
         
-        axs[m].set_title("Cluster " + str(m))
-        axs[m].hist2d(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
-        axs[m].set_xticks([])
-        axs[m].set_yticks([])
+        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
+        axs[np.floor(m / 5), m % 5].hist2d(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
+        axs[np.floor(m / 5), m % 5].set_xticks([])
+        axs[np.floor(m / 5), m % 5].set_yticks([])
         
     plt.show()
     
@@ -1198,8 +1204,8 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
         edge.append(pair_nearest)
         connected[pair_nearest[1]] = 1
         connect_order.append(pair_nearest[1])
-
-    edge_weight = 1 / (np.array(edge_length) ** 2)
+    
+    edge_weight = 1 / (np.clip(np.array(edge_length), 0.01, None) ** 2)
     edge_length_normalized = np.round(edge_length / np.sqrt(self.z_dim), decimals = 2)
     
     centre_2d = []
@@ -1268,7 +1274,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
         SNP_cluster_AF_filtered_missing_to_zero[m, :] = np.mean(self.AF_filtered_missing_to_zero.numpy()[clusters[m], :], 0)
         centre_cluster[m, :] = np.mean(self.latent[clusters[m], :], 0)
     
-    ratio_logit_var = np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var[self.SNP_filter]
+    ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var[self.SNP_filter], 0.01, None)
     f_stat = np.clip(1 / ratio_logit_var, 1.001, 20)
     df_bulk = self.cell_total - 1
     df_cluster = np.array(list(map(lambda x: cluster_size[x], np.argmin(SNP_cluster_logit_var, 0)))) - 1
