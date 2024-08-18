@@ -1068,13 +1068,17 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     
     for m in range(cluster_no):
         
-        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
-        axs[np.floor(m / 5), m % 5].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
-        axs[np.floor(m / 5), m % 5].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = colors[m])
-        axs[np.floor(m / 5), m % 5].set_xticks([])
-        axs[np.floor(m / 5), m % 5].set_yticks([])
-        axs[np.floor(m / 5), m % 5].set_xlim(self.xlim_pc)
-        axs[np.floor(m / 5), m % 5].set_ylim(self.ylim_pc)
+        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
+        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = colors[m])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_xlim(self.xlim_pc)
+        axs[int(np.floor(m / 5)), int(m % 5)].set_ylim(self.ylim_pc)
+
+    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
+
+        fig.delaxes(axs[-1, - m - 1])
         
     plt.show()
     
@@ -1084,13 +1088,17 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     
     for m in range(cluster_no):
         
-        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
-        axs[np.floor(m / 5), m % 5].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
-        axs[np.floor(m / 5), m % 5].scatter(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], s = 5, color = colors[m])
-        axs[np.floor(m / 5), m % 5].set_xticks([])
-        axs[np.floor(m / 5), m % 5].set_yticks([])
-        axs[np.floor(m / 5), m % 5].set_xlim(self.xlim_embedding_2d)
-        axs[np.floor(m / 5), m % 5].set_ylim(self.ylim_embedding_2d)
+        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
+        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], s = 5, color = colors[m])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_xlim(self.xlim_embedding_2d)
+        axs[int(np.floor(m / 5)), int(m % 5)].set_ylim(self.ylim_embedding_2d)
+
+    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
+
+        fig.delaxes(axs[-1, - m - 1])
         
     plt.show()
     
@@ -1100,10 +1108,14 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     
     for m in range(cluster_no):
         
-        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
-        axs[np.floor(m / 5), m % 5].hist2d(self.pc[clusters[m], 0], self.pc[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
-        axs[np.floor(m / 5), m % 5].set_xticks([])
-        axs[np.floor(m / 5), m % 5].set_yticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+        axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.pc[clusters[m], 0], self.pc[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
+        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
+
+    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
+
+        fig.delaxes(axs[-1, - m - 1])
         
     plt.show()
     
@@ -1113,10 +1125,14 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     
     for m in range(cluster_no):
         
-        axs[np.floor(m / 5), m % 5].set_title("Cluster " + str(m))
-        axs[np.floor(m / 5), m % 5].hist2d(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
-        axs[np.floor(m / 5), m % 5].set_xticks([])
-        axs[np.floor(m / 5), m % 5].set_yticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+        axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
+        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
+
+    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
+
+        fig.delaxes(axs[-1, - m - 1])
         
     plt.show()
     
