@@ -45,7 +45,24 @@ def moving_average(a, n):
 
 def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold):
     
-    """Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP"""
+    """
+        Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
+
+        Parameters
+        ----------
+        save_memory: boolean
+            if True, raw matrices and VCF will be deleted from the object to save memory (default: False)
+
+        cell_SNPread_threshold: float
+            minimal number of observed SNPs for a cell to be included for analysis, input after showing the plot if None (default: None)
+
+        SNP_DPmean_threshold: float
+            minimal cell-average coverage for a SNP to be included for analysis, input after showing the plot if None (default: None)
+
+        SNP_logit_var_threshold: float
+            minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None (default: None)
+        
+    """
     
     print("Start filtering low-quality cells and SNPs.")
     
