@@ -43,7 +43,7 @@ def moving_average(a, n):
     return ret[n-1: ] / n
 
 
-def filter_data(self, save_memory):
+def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold):
     
     """Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP"""
     
@@ -57,8 +57,11 @@ def filter_data(self, save_memory):
     plt.ylabel("Number of observed SNPs")
     plt.xlabel("Cell")
     plt.show()
+
+    if cell_SNPread_threshold == None:
     
-    cell_SNPread_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality cells with low number of observed SNPs.   "))
+        cell_SNPread_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality cells with low number of observed SNPs.   "))
+        
     cell_filter = cell_SNPread > cell_SNPread_threshold
     cell_total = np.sum(cell_filter)
     
@@ -70,8 +73,11 @@ def filter_data(self, save_memory):
     plt.ylabel("Mean coverage")
     plt.xlabel("SNP")
     plt.show()
+
+    if SNP_DPmean_threshold == None:
     
-    SNP_DPmean_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low coverage.   "))
+        SNP_DPmean_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low coverage.   "))
+        
     SNP_DPmean_filter = SNP_DPmean > SNP_DPmean_threshold
     
     SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).numpy()
@@ -82,8 +88,11 @@ def filter_data(self, save_memory):
     plt.ylabel("Logit-variance of SNP")
     plt.xlabel("SNP")
     plt.show()
+
+    if SNP_logit_var_threshold == None:
     
-    SNP_logit_var_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low logit-variance.   "))
+        SNP_logit_var_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low logit-variance.   "))
+        
     SNP_logit_var_filter = SNP_logit_var > SNP_logit_var_threshold
     SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
     cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
