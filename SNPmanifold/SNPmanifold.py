@@ -55,6 +55,15 @@ class SNP_VAE:
         ----------
         save_memory: boolean
             if True, raw matrices and VCF will be deleted from the object to save memory (default: False)
+
+        cell_SNPread_threshold: float
+            minimal number of observed SNPs for a cell to be included for analysis, input after showing the plot if None (default: None)
+
+        SNP_DPmean_threshold: float
+            minimal cell-average coverage for a SNP to be included for analysis, input after showing the plot if None (default: None)
+
+        SNP_logit_var_threshold: float
+            minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None (default: None)
         
         """
         
