@@ -80,7 +80,6 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         cell_SNPread_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality cells with low number of observed SNPs.   "))
         
     cell_filter = cell_SNPread > cell_SNPread_threshold
-    cell_total = np.sum(cell_filter)
     
     SNP_DPmean = np.mean(self.DP_raw[cell_filter, :], 0)
     
@@ -120,7 +119,10 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         SNP_logit_var_filter = SNP_logit_var > SNP_logit_var_threshold
         SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
         cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
-    
+
+    cell_filter[np.where(np.sum(self.DP_raw[cell_filter, :][:, SNP_filter], 1) == 0)[0]] = False
+
+    cell_total = np.sum(cell_filter)
     SNP_total = np.sum(SNP_filter)
     
     AD_filtered = self.AD_raw[cell_filter, :][:, SNP_filter]
