@@ -46,7 +46,7 @@ class SNP_VAE:
         self.cell_weight = cell_weight
         load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name)
         
-    def filtering(self, save_memory = False):
+    def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None):
         
         """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
