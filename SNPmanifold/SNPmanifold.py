@@ -5,7 +5,7 @@ from .utils_tools import filter_data, summary_filtering, train_VAE, summary_trai
 
 class SNP_VAE:
     
-    def __init__(self, path = None, mitoSNP_mask = [3107, 310], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized"):
+    def __init__(self, path = None, SNP_mask = [], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized"):
         
         """
         Load AD and DP matrices, VCF.gz file or variant_name.tsv file for subsequent analyses in SNP_VAE 
@@ -15,8 +15,8 @@ class SNP_VAE:
         path: string
             path of cellSNP-lite output folder which contains cellSNP.tag.AD.mtx, cellSNP.tag.DP.mtx, and cellSNP.base.vcf.gz
 
-        mitoSNP_mask: list of integers
-            positions of mitochondrial SNPs to be masked due to artefacts (default: [3107, 310])
+        SNP_mask: list
+            list of variant names to mask from VAE, please refer to the internal variant names: VCF['TEXT'], if you use VCF as input (default: [])
 
         AD: string
             path of AD matrix in scipy.sparse.coo_matrix format
@@ -44,7 +44,7 @@ class SNP_VAE:
         self.SNPread = SNPread
         self.missing_value = missing_value
         self.cell_weight = cell_weight
-        load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name)
+        load_data(self, path, SNP_mask, AD, DP, VCF, variant_name)
         
     def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None):
         
