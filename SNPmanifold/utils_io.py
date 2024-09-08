@@ -30,7 +30,7 @@ def read_VCF_gz(path):
     ).rename(columns={'#CHROM': 'CHROM'})
 
 
-def load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name):
+def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
     
     """
     Load AD and DP matrices, VCF.gz file or variant_name.tsv file for subsequent analyses in SNP_VAE 
@@ -40,8 +40,8 @@ def load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name):
     path: string
         path of cellSNP-lite output folder which contains cellSNP.tag.AD.mtx, cellSNP.tag.DP.mtx, and cellSNP.base.vcf.gz
         
-    mitoSNP_mask: list of integers
-        positions of mitochondrial SNPs to be masked due to artefacts
+    SNP_mask: list of variant names
+        list of variant names to mask from VAE, please refer to the internal variant names: VCF['TEXT'], if you use VCF as input
     
     AD: string
         path of AD matrix in scipy.sparse.coo_matrix format
@@ -75,47 +75,42 @@ def load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name):
         is_VCF = False
         
     if is_VCF == True:
+
+        VCF_raw["TEXT"] = "chr:" + VCF_raw["CHROM"].astype(str) + ", " + VCF_raw["POS"].astype(str) + VCF_raw["REF"] + ">" + VCF_raw["ALT"]
     
-        mitoSNP_filter = np.ones(VCF_raw.shape[0])
+        SNP_filter = np.ones(VCF_raw.shape[0])
     
         for j in range(VCF_raw.shape[0]):
 
-            if VCF_raw["CHROM"][j] == 'chrM' and VCF_raw["POS"][j] in mitoSNP_mask:
+            if VCF_raw["TEXT"][j] in SNP_mask:
 
-                mitoSNP_filter[j] = 0
+                SNP_filter[j] = 0
 
-            if VCF_raw["CHROM"][j] == 'chrMT' and VCF_raw["POS"][j] in mitoSNP_mask:
+        SNP_filter = SNP_filter.astype(bool)
+        VCF_raw = VCF_raw[SNP_filter]
 
-                mitoSNP_filter[j] = 0
+    elif is_VCF == True:
 
-            if VCF_raw["CHROM"][j] == 'M' and VCF_raw["POS"][j] in mitoSNP_mask:
+        SNP_filter = np.ones(VCF_raw.shape[0])
+    
+        for j in range(VCF_raw.shape[0]):
 
-                mitoSNP_filter[j] = 0
+            if VCF_raw[0][j] in SNP_mask:
 
-            if VCF_raw["CHROM"][j] == 'MT' and VCF_raw["POS"][j] in mitoSNP_mask:
+                SNP_filter[j] = 0
 
-                mitoSNP_filter[j] = 0
-
-        mitoSNP_filter = mitoSNP_filter.astype(bool)
-
-        VCF_raw = VCF_raw[mitoSNP_filter]
+        SNP_filter = SNP_filter.astype(bool)
+        VCF_raw = VCF_raw[SNP_filter]
     
     if path != None:
         
-        AD_raw = mmread(path + '/cellSNP.tag.AD.mtx').toarray()[mitoSNP_filter, :].T
-        DP_raw = mmread(path + '/cellSNP.tag.DP.mtx').toarray()[mitoSNP_filter, :].T
+        AD_raw = mmread(path + '/cellSNP.tag.AD.mtx').toarray()[SNP_filter, :].T
+        DP_raw = mmread(path + '/cellSNP.tag.DP.mtx').toarray()[SNP_filter, :].T
         
     elif path == None:
         
-        if is_VCF == True:
-        
-            AD_raw = mmread(AD).toarray()[mitoSNP_filter, :].T
-            DP_raw = mmread(DP).toarray()[mitoSNP_filter, :].T
-            
-        elif is_VCF == False:
-            
-            AD_raw = mmread(AD).toarray().T
-            DP_raw = mmread(DP).toarray().T
+        AD_raw = mmread(AD).toarray()[SNP_filter, :].T
+        DP_raw = mmread(DP).toarray()[SNP_filter, :].T
     
     with warnings.catch_warnings():
         
@@ -128,13 +123,9 @@ def load_data(self, path, mitoSNP_mask, AD, DP, VCF, variant_name):
     
     self.path = path
     self.VCF_raw = VCF_raw
-    self.mitoSNP_mask = mitoSNP_mask
+    self.SNP_mask = SNP_mask
     self.is_VCF = is_VCF
-    
-    if is_VCF == True:
-        
-        self.mitoSNP_filter = mitoSNP_filter
-        
+    self.SNP_filter = SNP_filter
     self.AD_raw = AD_raw
     self.DP_raw = DP_raw
     self.AF_mean = AF_mean
