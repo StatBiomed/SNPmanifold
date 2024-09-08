@@ -40,7 +40,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
     path: string
         path of cellSNP-lite output folder which contains cellSNP.tag.AD.mtx, cellSNP.tag.DP.mtx, and cellSNP.base.vcf.gz
         
-    SNP_mask: list of variant names
+    SNP_mask: list
         list of variant names to mask from VAE, please refer to the internal variant names: VCF['TEXT'], if you use VCF as input
     
     AD: string
