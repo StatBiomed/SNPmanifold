@@ -19,7 +19,7 @@ Parameters to initialize and load data into the main object SNP_VAE:
 
 **path** (string) - path of cellSNP-lite output folder which contains cellSNP.tag.AD.mtx, cellSNP.tag.DP.mtx, and cellSNP.base.vcf.gz
 
-**mitoSNP_mask** (list of integers) - positions of mitochondrial SNPs to be masked due to artefacts (default: [3107, 310])
+**SNP_mask** (list of string) - list of variant names to mask from VAE, please refer to the internal variant names: VCF['TEXT'], if you use VCF as input (default: [])
 
 **AD** (string) - path of AD matrix in scipy.sparse.coo_matrix format with shape (SNP, cell)
 
