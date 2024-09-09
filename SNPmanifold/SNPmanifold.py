@@ -67,7 +67,7 @@ class SNP_VAE:
         
         """
         
-        filter_data(self, save_memory)
+        filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold)
         
     def training(self, num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0, num_batch = 5):
         
