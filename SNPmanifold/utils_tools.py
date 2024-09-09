@@ -1513,7 +1513,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
     fig.set_size_inches(6 * 5, 5 * int(np.ceil(self.cluster_no / 5)))
     fig.suptitle("Scatter plot of PCA")
     
-    for m in range(cluster_no):
+    for m in range(self.cluster_no):
         
         axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
         axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
@@ -1533,7 +1533,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
     fig.set_size_inches(6 * 5, 5 * int(np.ceil(self.cluster_no / 5)))
     fig.suptitle("Scatter plot of UMAP")
     
-    for m in range(cluster_no):
+    for m in range(self.cluster_no):
         
         axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
         axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
@@ -1553,7 +1553,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
     fig.set_size_inches(6 * 5, 5 * int(np.ceil(self.cluster_no / 5)))
     fig.suptitle("Density plot of PCA")
     
-    for m in range(cluster_no):
+    for m in range(self.cluster_no):
         
         axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
         axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.pc[self.clusters[m], 0], self.pc[self.clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
@@ -1570,7 +1570,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
     fig.set_size_inches(6 * 5, 5 * int(np.ceil(self.cluster_no / 5)))
     fig.suptitle("Density plot of UMAP")
     
-    for m in range(cluster_no):
+    for m in range(self.cluster_no):
         
         axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
         axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.embedding_2d[self.clusters[m], 0], self.embedding_2d[self.clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
