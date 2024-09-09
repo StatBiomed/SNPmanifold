@@ -1517,7 +1517,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
         
         axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
         axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
-        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = self.colors[m])
+        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[self.clusters[m], 0], self.pc[self.clusters[m], 1], s = 5, color = self.colors[m])
         axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
         axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
         axs[int(np.floor(m / 5)), int(m % 5)].set_xlim(self.xlim_pc)
