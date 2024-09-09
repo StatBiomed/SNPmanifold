@@ -89,7 +89,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
         SNP_filter = SNP_filter.astype(bool)
         VCF_raw = VCF_raw[SNP_filter]
 
-    elif is_VCF == True:
+    elif is_VCF == False:
 
         SNP_filter = np.ones(VCF_raw.shape[0])
     
