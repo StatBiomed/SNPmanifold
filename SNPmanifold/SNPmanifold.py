@@ -40,7 +40,7 @@ class SNP_VAE:
             optional cost normalization for each cell, 'normalized' or 'unnormalized' (default: 'unnormalized')
 
         prior: string
-            path of prior probabilty of mutation for each variant in csv format
+            path of prior weights of mutation for each variant in csv format
 
         """
 
