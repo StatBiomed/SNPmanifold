@@ -44,11 +44,10 @@ class SNP_VAE:
 
         """
 
-        self.prior = prior
         self.SNPread = SNPread
         self.missing_value = missing_value
         self.cell_weight = cell_weight
-        load_data(self, path, SNP_mask, AD, DP, VCF, variant_name)
+        load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior)
         
     def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None):
         
