@@ -73,44 +73,16 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
         
         VCF_raw = pd.read_csv(variant_name, delimiter = "\t", header = None)
         is_VCF = False
-        
-    if is_VCF == True:
-
-        VCF_raw["TEXT"] = "chr:" + VCF_raw["CHROM"].astype(str) + ", " + VCF_raw["POS"].astype(str) + VCF_raw["REF"] + ">" + VCF_raw["ALT"]
-    
-        SNP_filter = np.ones(VCF_raw.shape[0])
-    
-        for j in range(VCF_raw.shape[0]):
-
-            if VCF_raw["TEXT"][j] in SNP_mask:
-
-                SNP_filter[j] = 0
-
-        SNP_filter = SNP_filter.astype(bool)
-        VCF_raw = VCF_raw[SNP_filter]
-
-    elif is_VCF == False:
-
-        SNP_filter = np.ones(VCF_raw.shape[0])
-    
-        for j in range(VCF_raw.shape[0]):
-
-            if VCF_raw[0][j] in SNP_mask:
-
-                SNP_filter[j] = 0
-
-        SNP_filter = SNP_filter.astype(bool)
-        VCF_raw = VCF_raw[SNP_filter]
     
     if path != None:
         
-        AD_raw = mmread(path + '/cellSNP.tag.AD.mtx').toarray()[SNP_filter, :].T
-        DP_raw = mmread(path + '/cellSNP.tag.DP.mtx').toarray()[SNP_filter, :].T
+        AD_raw = mmread(path + '/cellSNP.tag.AD.mtx').toarray().T
+        DP_raw = mmread(path + '/cellSNP.tag.DP.mtx').toarray().T
         
     elif path == None:
         
-        AD_raw = mmread(AD).toarray()[SNP_filter, :].T
-        DP_raw = mmread(DP).toarray()[SNP_filter, :].T
+        AD_raw = mmread(AD).toarray().T
+        DP_raw = mmread(DP).toarray().T
     
     with warnings.catch_warnings():
         
@@ -125,7 +97,6 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
     self.VCF_raw = VCF_raw
     self.SNP_mask = SNP_mask
     self.is_VCF = is_VCF
-    self.SNP_filter = SNP_filter
     self.AD_raw = AD_raw
     self.DP_raw = DP_raw
     self.AF_mean = AF_mean
