@@ -96,7 +96,13 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     AF_raw_missing_to_mean[np.isnan(AF_raw_missing_to_mean)] = np.outer(np.ones(AF_raw_missing_to_mean.shape[0]), AF_mean)[np.isnan(AF_raw_missing_to_mean)]
     AF_raw_missing_to_mean = torch.tensor(AF_raw_missing_to_mean).float()
 
-    prior_raw = np.genfromtxt(prior)
+    if prior != None:
+
+        prior_raw = np.genfromtxt(prior)
+
+    elif prior == None:
+
+        prior_raw = None
     
     self.path = path
     self.VCF_raw = VCF_raw
