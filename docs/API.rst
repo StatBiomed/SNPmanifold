@@ -35,6 +35,8 @@ Parameters to initialize and load data into the main object SNP_VAE:
         
 **cell_weight** (string) - optional cost normalization for each cell, 'normalized' or 'unnormalized' (default: 'unnormalized')
 
+**prior** (string) - path of prior weights of mutation for each variant in csv format (default: None)
+
 Functions
 -----------
 
