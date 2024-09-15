@@ -5,7 +5,7 @@ from .utils_tools import filter_data, summary_filtering, train_VAE, summary_trai
 
 class SNP_VAE:
     
-    def __init__(self, path = None, SNP_mask = [], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized"):
+    def __init__(self, path = None, SNP_mask = [], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized", prior = None):
         
         """
         Load AD and DP matrices, VCF.gz file or variant_name.tsv file for subsequent analyses in SNP_VAE 
@@ -39,8 +39,12 @@ class SNP_VAE:
         cell_weight: string
             optional cost normalization for each cell, 'normalized' or 'unnormalized' (default: 'unnormalized')
 
+        prior: string
+            path of prior probabilty of mutation for each variant in csv format
+
         """
-        
+
+        self.prior = prior
         self.SNPread = SNPread
         self.missing_value = missing_value
         self.cell_weight = cell_weight
