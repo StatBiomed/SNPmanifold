@@ -30,7 +30,7 @@ def read_VCF_gz(path):
     ).rename(columns={'#CHROM': 'CHROM'})
 
 
-def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
+def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     
     """
     Load AD and DP matrices, VCF.gz file or variant_name.tsv file for subsequent analyses in SNP_VAE 
@@ -54,6 +54,9 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
     
     variant_name: string
         path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
+
+    prior: string
+            path of prior probabilty of mutation for each variant in csv format
 
     """
     
@@ -92,6 +95,8 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
     AF_mean = np.nanmean(AF_raw_missing_to_mean, 0)
     AF_raw_missing_to_mean[np.isnan(AF_raw_missing_to_mean)] = np.outer(np.ones(AF_raw_missing_to_mean.shape[0]), AF_mean)[np.isnan(AF_raw_missing_to_mean)]
     AF_raw_missing_to_mean = torch.tensor(AF_raw_missing_to_mean).float()
+
+    prior_raw = np.genfromtxt(prior)
     
     self.path = path
     self.VCF_raw = VCF_raw
@@ -101,6 +106,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name):
     self.DP_raw = DP_raw
     self.AF_mean = AF_mean
     self.AF_raw_missing_to_mean = AF_raw_missing_to_mean
+    self.prior_raw = prior_raw
 
     print("Finish loading raw data.")
 
