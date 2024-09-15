@@ -296,7 +296,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
 
     else:
 
-        AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
+        AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered * np.outer(np.ones(self.cell_total), self.prior[self.SNP_filter]))), 1).float()
     
     cell_SNPread_filtered = np.count_nonzero(self.DP_filtered, 1)
     cell_SNPread_weight = torch.tensor(np.outer(cell_SNPread_filtered, np.ones(z_dim))).float()
