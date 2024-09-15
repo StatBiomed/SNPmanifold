@@ -56,7 +56,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
         path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
 
     prior: string
-            path of prior probabilty of mutation for each variant in csv format
+        path of prior weights of mutation for each variant in csv format
 
     """
     
