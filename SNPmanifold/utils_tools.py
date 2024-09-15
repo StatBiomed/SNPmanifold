@@ -120,6 +120,28 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
         cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
 
+    if self.is_VCF == True:
+
+        self.VCF_raw["TEXT"] = "chr:" + self.VCF_raw["CHROM"].astype(str) + ", " + self.VCF_raw["POS"].astype(str) + self.VCF_raw["REF"] + ">" + self.VCF_raw["ALT"]
+    
+        for j in range(self.VCF_raw.shape[0]):
+
+            if self.VCF_raw["TEXT"][j] in self.SNP_mask:
+
+                SNP_filter[j] = False
+
+        self.VCF_raw = self.VCF_raw[SNP_filter]
+
+    elif self.is_VCF == False:
+    
+        for j in range(self.VCF_raw.shape[0]):
+
+            if self.VCF_raw[0][j] in self.SNP_mask:
+
+                SNP_filter[j] = False
+
+        self.VCF_raw = self.VCF_raw[SNP_filter]
+
     cell_filter[np.where(np.sum(self.DP_raw[cell_filter, :][:, SNP_filter], 1) == 0)[0]] = False
 
     cell_total = np.sum(cell_filter)
@@ -159,7 +181,6 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         
         pd.options.mode.chained_assignment = None
         VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
-        VCF_filtered["TEXT"] = "chr:" + VCF_filtered["CHROM"].astype(str) + ", " + VCF_filtered["POS"].astype(str) + VCF_filtered["REF"] + ">" + VCF_filtered["ALT"]
         pd.options.mode.chained_assignment = 'warn'
         
     elif self.is_VCF == False:
@@ -268,8 +289,15 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
         z_dim = int(np.min((np.ceil(self.cell_total / 2), np.ceil(self.SNP_total / 2))))
     
     loss_fn = nn.BCELoss(reduction = 'none')
+
+    if self.prior == None:
+        
+        AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
+
+    else:
+
+        AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
     
-    AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
     cell_SNPread_filtered = np.count_nonzero(self.DP_filtered, 1)
     cell_SNPread_weight = torch.tensor(np.outer(cell_SNPread_filtered, np.ones(z_dim))).float()
     
