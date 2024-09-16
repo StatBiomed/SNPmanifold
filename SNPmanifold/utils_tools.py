@@ -286,11 +286,11 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
     
     loss_fn = nn.BCELoss(reduction = 'none')
 
-    if self.prior_raw == None:
+    if self.is_prior == False:
         
         AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
 
-    else:
+    elif self.is_prior == True:
 
         AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered * np.outer(np.ones(self.cell_total), self.prior_raw[self.SNP_filter]))), 1).float()
     
