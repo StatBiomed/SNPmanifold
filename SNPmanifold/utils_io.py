@@ -98,11 +98,13 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
 
     if prior != None:
 
+        is_prior = True
         prior_raw = np.genfromtxt(prior)
+        self.prior_raw = prior_raw
 
     elif prior == None:
-
-        prior_raw = None
+        
+        is_prior = False
     
     self.path = path
     self.VCF_raw = VCF_raw
@@ -112,7 +114,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     self.DP_raw = DP_raw
     self.AF_mean = AF_mean
     self.AF_raw_missing_to_mean = AF_raw_missing_to_mean
-    self.prior_raw = prior_raw
+    self.is_prior = is_prior
 
     print("Finish loading raw data.")
 
