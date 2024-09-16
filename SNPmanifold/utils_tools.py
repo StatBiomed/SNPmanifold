@@ -130,8 +130,6 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
                 SNP_filter[j] = False
 
-        self.VCF_raw = self.VCF_raw[SNP_filter]
-
     elif self.is_VCF == False:
     
         for j in range(self.VCF_raw.shape[0]):
@@ -139,8 +137,6 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             if self.VCF_raw[0][j] in self.SNP_mask:
 
                 SNP_filter[j] = False
-
-        self.VCF_raw = self.VCF_raw[SNP_filter]
 
     cell_filter[np.where(np.sum(self.DP_raw[cell_filter, :][:, SNP_filter], 1) == 0)[0]] = False
 
