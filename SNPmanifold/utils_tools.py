@@ -1721,7 +1721,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
 
     elif SNP_ranking == 'AF_diff':
 
-                if self.is_VCF == True:
+        if self.is_VCF == True:
         
             fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[self.rank_SNP_AF_diff][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
             
