@@ -1338,6 +1338,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     SNP_cluster_logit_var = np.empty((cluster_no, self.SNP_total))
     SNP_cluster_AF_filtered_missing_to_zero = np.empty((cluster_no, self.SNP_total))
     SNP_cluster_AF_filtered_missing_to_mean = np.empty((cluster_no, self.SNP_total))
+    SNP_cluster_AF_filtered_missing_to_nan = np.empty((cluster_no, self.SNP_total))
     centre_cluster = np.empty((cluster_no, self.z_dim))
     
     for m in range(cluster_no):
@@ -1345,7 +1346,10 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         SNP_cluster_logit_var[m, :] = torch.var(torch.logit(self.AF_filtered_missing_to_mean[clusters[m], :], eps = 0.01), 0).numpy()
         SNP_cluster_AF_filtered_missing_to_zero[m, :] = np.mean(self.AF_filtered_missing_to_zero.numpy()[clusters[m], :], 0)
         SNP_cluster_AF_filtered_missing_to_mean[m, :] = np.mean(self.AF_filtered_missing_to_mean.numpy()[clusters[m], :], 0)
+        SNP_cluster_AF_filtered_missing_to_nan[m, :] = np.nanmean((self.AD_filtered / self.DP_filtered).numpy()[clusters[m], :], 0)
         centre_cluster[m, :] = np.mean(self.latent[clusters[m], :], 0)
+
+    SNP_cluster_AF_filtered_missing_to_nan[np.isnan(SNP_cluster_AF_filtered_missing_to_nan)] = SNP_cluster_AF_filtered_missing_to_mean[np.isnan(SNP_cluster_AF_filtered_missing_to_nan)]
     
     ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var[self.SNP_filter], 0.01, None)
     f_stat = np.clip(1 / ratio_logit_var, 1.001, 20)
@@ -1353,7 +1357,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     df_cluster = np.array(list(map(lambda x: cluster_size[x], np.argmin(SNP_cluster_logit_var, 0)))) - 1
     p_value = 1 - stats.f.cdf(f_stat, df_bulk, df_cluster)
     SNP_cluster_AF_filtered_missing_to_zero_max = np.max(SNP_cluster_AF_filtered_missing_to_zero, 0)
-    SNP_cluster_AF_filtered_missing_to_mean_diff = np.max(SNP_cluster_AF_filtered_missing_to_mean, 0) - np.min(SNP_cluster_AF_filtered_missing_to_mean, 0)
+    SNP_cluster_AF_filtered_missing_to_mean_diff = np.max(SNP_cluster_AF_filtered_missing_to_nan, 0) - np.min(SNP_cluster_AF_filtered_missing_to_nan, 0)
     
     rank_SNP_p_value = np.argsort(p_value)
     SNP_low_p_value_total = np.sum(np.log10(p_value) < -15.5)
