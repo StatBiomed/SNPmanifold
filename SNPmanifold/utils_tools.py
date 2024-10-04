@@ -1346,7 +1346,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         SNP_cluster_logit_var[m, :] = torch.var(torch.logit(self.AF_filtered_missing_to_mean[clusters[m], :], eps = 0.01), 0).numpy()
         SNP_cluster_AF_filtered_missing_to_zero[m, :] = np.mean(self.AF_filtered_missing_to_zero.numpy()[clusters[m], :], 0)
         SNP_cluster_AF_filtered_missing_to_mean[m, :] = np.mean(self.AF_filtered_missing_to_mean.numpy()[clusters[m], :], 0)
-        SNP_cluster_AF_filtered_missing_to_nan[m, :] = np.nanmean((self.AD_filtered / self.DP_filtered).numpy()[clusters[m], :], 0)
+        SNP_cluster_AF_filtered_missing_to_nan[m, :] = np.nanmean((self.AD_filtered / self.DP_filtered)[clusters[m], :], 0)
         centre_cluster[m, :] = np.mean(self.latent[clusters[m], :], 0)
 
     SNP_cluster_AF_filtered_missing_to_nan[np.isnan(SNP_cluster_AF_filtered_missing_to_nan)] = SNP_cluster_AF_filtered_missing_to_mean[np.isnan(SNP_cluster_AF_filtered_missing_to_nan)]
