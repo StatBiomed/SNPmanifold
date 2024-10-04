@@ -1045,7 +1045,7 @@ def summary_clustering(self, dpi):
         print("Nothing to be shown.")
         
         
-def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
+def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking):
     
     """
     Construct phylogenetic tree of cells in full-dimensional latent space and rank SNPs according to p-values
@@ -1066,6 +1066,9 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     
     cmap_heatmap: mpl.colormaps
         colormap used for heatmap visualization
+
+    SNP_ranking: string
+        method for ranking SNPs, 'variance' or 'AF_diff'
 
     """
     
@@ -1334,12 +1337,14 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     
     SNP_cluster_logit_var = np.empty((cluster_no, self.SNP_total))
     SNP_cluster_AF_filtered_missing_to_zero = np.empty((cluster_no, self.SNP_total))
+    SNP_cluster_AF_filtered_missing_to_mean = np.empty((cluster_no, self.SNP_total))
     centre_cluster = np.empty((cluster_no, self.z_dim))
     
     for m in range(cluster_no):
         
         SNP_cluster_logit_var[m, :] = torch.var(torch.logit(self.AF_filtered_missing_to_mean[clusters[m], :], eps = 0.01), 0).numpy()
         SNP_cluster_AF_filtered_missing_to_zero[m, :] = np.mean(self.AF_filtered_missing_to_zero.numpy()[clusters[m], :], 0)
+        SNP_cluster_AF_filtered_missing_to_mean[m, :] = np.mean(self.AF_filtered_missing_to_mean.numpy()[clusters[m], :], 0)
         centre_cluster[m, :] = np.mean(self.latent[clusters[m], :], 0)
     
     ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var[self.SNP_filter], 0.01, None)
@@ -1348,19 +1353,30 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     df_cluster = np.array(list(map(lambda x: cluster_size[x], np.argmin(SNP_cluster_logit_var, 0)))) - 1
     p_value = 1 - stats.f.cdf(f_stat, df_bulk, df_cluster)
     SNP_cluster_AF_filtered_missing_to_zero_max = np.max(SNP_cluster_AF_filtered_missing_to_zero, 0)
+    SNP_cluster_AF_filtered_missing_to_mean_diff = np.max(SNP_cluster_AF_filtered_missing_to_mean, 0) - np.min(SNP_cluster_AF_filtered_missing_to_mean, 0)
     
-    rank_SNP = np.argsort(p_value)
+    rank_SNP_p_value = np.argsort(p_value)
     SNP_low_p_value_total = np.sum(np.log10(p_value) < -15.5)
     
     if SNP_low_p_value_total > 1:
         
-        SNP_low_p_value = rank_SNP[:SNP_low_p_value_total]
+        SNP_low_p_value = rank_SNP_p_value[:SNP_low_p_value_total]
         
         rank_SNP_low_p_value = np.flip(np.argsort(SNP_cluster_AF_filtered_missing_to_zero_max[SNP_low_p_value]))
-        rank_SNP[:SNP_low_p_value_total] = rank_SNP[:SNP_low_p_value_total][rank_SNP_low_p_value]
+        rank_SNP_p_value[:SNP_low_p_value_total] = rank_SNP_p_value[:SNP_low_p_value_total][rank_SNP_low_p_value]
         
         self.SNP_low_p_value = SNP_low_p_value
         self.rank_SNP_low_p_value = rank_SNP_low_p_value
+
+    rank_SNP_AF_diff = np.flip(np.argsort(SNP_cluster_AF_filtered_missing_to_mean_diff))
+
+    if SNP_ranking == 'variance':
+
+        rank_SNP = rank_SNP_p_value
+
+    elif SNP_ranking == 'AF_diff':
+
+        rank_SNP = rank_SNP_AF_diff
         
     root = np.argmin(np.mean(centre_cluster ** 2, 1))
     move = 0
@@ -1453,10 +1469,12 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
 
     fig.tight_layout()
     plt.show()
-    
+
+    self.SNP_ranking = SNP_ranking
     self.SNP_no = SNP_no
     self.SNP_cluster_logit_var = SNP_cluster_logit_var
     self.SNP_cluster_AF_filtered_missing_to_zero = SNP_cluster_AF_filtered_missing_to_zero
+    self.SNP_cluster_AF_filtered_missing_to_mean = SNP_cluster_AF_filtered_missing_to_mean
     self.centre_cluster = centre_cluster
     self.ratio_logit_var = ratio_logit_var
     self.f_stat = f_stat
@@ -1464,6 +1482,9 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     self.df_cluster = df_cluster
     self.p_value = p_value
     self.SNP_cluster_AF_filtered_missing_to_zero_max = SNP_cluster_AF_filtered_missing_to_zero_max
+    self.SNP_cluster_AF_filtered_missing_to_mean_diff = SNP_cluster_AF_filtered_missing_to_mean_diff
+    self.rank_SNP_p_value = rank_SNP_p_value
+    self.rank_SNP_AF_diff = rank_SNP_AF_diff
     self.rank_SNP = rank_SNP
     self.SNP_low_p_value_total = SNP_low_p_value_total
     self.root = root
@@ -1476,7 +1497,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap):
     self.SNP_cluster_AF_filtered_missing_to_zero_max_ranked = SNP_cluster_AF_filtered_missing_to_zero_max_ranked
     
     
-def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap):
+def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking):
     
     """
     Re-display figures shown in phylogeny with higher dpi, different number of SNPs, color and fontsizes
@@ -1503,12 +1524,19 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
     
     cmap_heatmap:
         colormap used for heatmap visualization
+
+    SNP_ranking: string
+        method for ranking SNPs, 'variance' or 'AF_diff'
     
     """
     
     if SNP_no == None:
         
         SNP_no = self.SNP_no
+
+    if SNP_ranking == None:
+        
+        SNP_ranking = self.SNP_ranking
         
     print("PCA and UMAP of individual clusters will be shown below.")
     
@@ -1676,14 +1704,26 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
     
     cmap = cmap_heatmap 
     cmap.set_bad(bad_color)
+
+    if SNP_ranking == 'variance':
     
-    if self.is_VCF == True:
-    
-        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+        if self.is_VCF == True:
         
-    elif self.is_VCF == False:
+            fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[self.rank_SNP_p_value][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+            
+        elif self.is_VCF == False:
+            
+            fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[self.rank_SNP_p_value][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+
+    elif SNP_ranking == 'AF_diff':
+
+                if self.is_VCF == True:
         
-        fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[self.rank_SNP][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+            fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[self.rank_SNP_AF_diff][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+            
+        elif self.is_VCF == False:
+            
+            fig = sns.clustermap(pd.DataFrame(self.AF_sorted[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[self.rank_SNP_AF_diff][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
     
     fig.ax_col_colors.set_xticks(moving_average(np.cumsum([0] + list(self.cluster_size[self.cluster_order])), 2))
     
