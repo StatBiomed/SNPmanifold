@@ -33,7 +33,7 @@ class SNP_VAE:
         SNPread: string
             optional observed-SNP normalization, 'normalized' or 'unnormalized' (default: 'normalized')
         
-        missing_value: float between 0 and 1
+        missing_value: float between 0 and 1, or string 'mean'
             impute value for missing allele frequency in AF matrix, i.e. DP = 0 (default: 0.5)
         
         cell_weight: string
