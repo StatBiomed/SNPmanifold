@@ -55,6 +55,15 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     variant_name: string
         path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
 
+    SNPread: string
+        optional observed-SNP normalization, 'normalized' or 'unnormalized'
+        
+    missing_value: float between 0 and 1, or string 'mean'
+        impute value for missing allele frequency in AF matrix, i.e. DP = 0
+        
+    cell_weight: string
+        optional cost normalization for each cell, 'normalized' or 'unnormalized'
+
     prior: string
         path of prior weights of mutation for each variant in csv format
 
