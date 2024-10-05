@@ -224,7 +224,7 @@ class SNP_VAE:
             colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
 
         SNP_ranking: string
-            method for ranking SNPs, 'variance' or 'AF_diff'
+            method for ranking SNPs, 'variance' or 'AF_diff' (default: 'AF_diff')
 
         """
         
