@@ -63,7 +63,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None (default: None)
 
         filtering_only: boolean
-            if True, it does not store AF matrices which are required for subsequent analyses in order to speed up (default: False)
+            if True, it does not process AF matrices which are required for subsequent analyses in order to speed up (default: False)
         
     """
     
