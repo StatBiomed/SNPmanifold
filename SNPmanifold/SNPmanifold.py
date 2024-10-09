@@ -49,7 +49,7 @@ class SNP_VAE:
         self.cell_weight = cell_weight
         load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior)
         
-    def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None):
+    def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None, filtering_only = False):
         
         """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -67,10 +67,13 @@ class SNP_VAE:
 
         SNP_logit_var_threshold: float
             minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None (default: None)
+
+        filtering_only: boolean
+            if True, it does not process AF matrices which are required for subsequent analyses in order to speed up (default: False)
         
         """
         
-        filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold)
+        filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only)
         
     def training(self, num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0, num_batch = 5):
         
