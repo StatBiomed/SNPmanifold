@@ -43,7 +43,7 @@ def moving_average(a, n):
     return ret[n-1: ] / n
 
 
-def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold):
+def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only):
     
     """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -61,6 +61,9 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         SNP_logit_var_threshold: float
             minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None (default: None)
+
+        filtering_only: boolean
+            if True, it does not store AF matrices which are required for subsequent analyses in order to speed up (default: False)
         
     """
     
@@ -145,42 +148,44 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     
     AD_filtered = self.AD_raw[cell_filter, :][:, SNP_filter]
     DP_filtered = self.DP_raw[cell_filter, :][:, SNP_filter]
+
+    if filtering_only == False:
     
-    with warnings.catch_warnings():
+        with warnings.catch_warnings():
+            
+            warnings.filterwarnings("ignore", category = RuntimeWarning)
+            AF_filtered = AD_filtered / DP_filtered
+            
+        AF_filtered_mean = np.nanmean(AF_filtered, 0)
+        AF_filtered_missing_to_nan = np.copy(AF_filtered)
+        AF_filtered_missing_to_zero = np.copy(AF_filtered)
+        AF_filtered_missing_to_mean = np.copy(AF_filtered)
+        AF_filtered_missing_to_half = np.copy(AF_filtered)
         
-        warnings.filterwarnings("ignore", category = RuntimeWarning)
-        AF_filtered = AD_filtered / DP_filtered
+        if self.missing_value == "mean":
+            
+            AF_filtered[np.isnan(AF_filtered)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered)]
         
-    AF_filtered_mean = np.nanmean(AF_filtered, 0)
-    AF_filtered_missing_to_nan = np.copy(AF_filtered)
-    AF_filtered_missing_to_zero = np.copy(AF_filtered)
-    AF_filtered_missing_to_mean = np.copy(AF_filtered)
-    AF_filtered_missing_to_half = np.copy(AF_filtered)
-    
-    if self.missing_value == "mean":
+        else:
+            
+            AF_filtered[np.isnan(AF_filtered)] = self.missing_value
         
-        AF_filtered[np.isnan(AF_filtered)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered)]
-    
-    else:
+        AF_filtered = torch.tensor(AF_filtered).float()
+        AF_filtered_missing_to_zero[np.isnan(AF_filtered_missing_to_zero)] = 0
+        AF_filtered_missing_to_zero = torch.tensor(AF_filtered_missing_to_zero).float()
+        AF_filtered_missing_to_mean[np.isnan(AF_filtered_missing_to_mean)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered_missing_to_mean)]
+        AF_filtered_missing_to_mean = torch.tensor(AF_filtered_missing_to_mean).float()
+        AF_filtered_missing_to_half[np.isnan(AF_filtered_missing_to_half)] = 0.5
+        AF_filtered_missing_to_half = torch.tensor(AF_filtered_missing_to_half).float()
         
-        AF_filtered[np.isnan(AF_filtered)] = self.missing_value
-    
-    AF_filtered = torch.tensor(AF_filtered).float()
-    AF_filtered_missing_to_zero[np.isnan(AF_filtered_missing_to_zero)] = 0
-    AF_filtered_missing_to_zero = torch.tensor(AF_filtered_missing_to_zero).float()
-    AF_filtered_missing_to_mean[np.isnan(AF_filtered_missing_to_mean)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered_missing_to_mean)]
-    AF_filtered_missing_to_mean = torch.tensor(AF_filtered_missing_to_mean).float()
-    AF_filtered_missing_to_half[np.isnan(AF_filtered_missing_to_half)] = 0.5
-    AF_filtered_missing_to_half = torch.tensor(AF_filtered_missing_to_half).float()
-    
     if self.is_VCF == True:
-        
-        pd.options.mode.chained_assignment = None
-        VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
-        pd.options.mode.chained_assignment = 'warn'
-        
+            
+    pd.options.mode.chained_assignment = None
+    VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
+    pd.options.mode.chained_assignment = 'warn'
+    
     elif self.is_VCF == False:
-        
+    
         VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
 
     if save_memory == True:
@@ -204,12 +209,16 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     self.SNP_total = SNP_total
     self.AD_filtered = AD_filtered
     self.DP_filtered = DP_filtered
-    self.AF_filtered = AF_filtered
-    self.AF_filtered_mean = AF_filtered_mean
-    self.AF_filtered_missing_to_nan = AF_filtered_missing_to_nan
-    self.AF_filtered_missing_to_zero = AF_filtered_missing_to_zero
-    self.AF_filtered_missing_to_mean = AF_filtered_missing_to_mean
-    self.AF_filtered_missing_to_half = AF_filtered_missing_to_half
+
+    if filtering_only == False:
+
+        self.AF_filtered = AF_filtered
+        self.AF_filtered_mean = AF_filtered_mean
+        self.AF_filtered_missing_to_nan = AF_filtered_missing_to_nan
+        self.AF_filtered_missing_to_zero = AF_filtered_missing_to_zero
+        self.AF_filtered_missing_to_mean = AF_filtered_missing_to_mean
+        self.AF_filtered_missing_to_half = AF_filtered_missing_to_half
+        
     self.VCF_filtered = VCF_filtered
     
     print(f"Finish filtering low-quality data, {cell_total} cells and {SNP_total} SNPs will be used for downstream analysis.")
