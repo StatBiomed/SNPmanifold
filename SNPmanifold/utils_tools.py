@@ -180,9 +180,9 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         
     if self.is_VCF == True:
             
-    pd.options.mode.chained_assignment = None
-    VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
-    pd.options.mode.chained_assignment = 'warn'
+        pd.options.mode.chained_assignment = None
+        VCF_filtered = self.VCF_raw.iloc[SNP_filter, :]
+        pd.options.mode.chained_assignment = 'warn'
     
     elif self.is_VCF == False:
     
