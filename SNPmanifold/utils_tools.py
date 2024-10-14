@@ -51,22 +51,22 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         Parameters
         ----------
         save_memory: boolean
-            if True, raw matrices and VCF will be deleted from the object to save memory (default: False)
+            if True, raw matrices and VCF will be deleted from the object to save memory
 
         cell_SNPread_threshold: float
-            minimal number of observed SNPs for a cell to be included for analysis, input after showing the plot if None (default: None)
+            minimal number of observed SNPs for a cell to be included for analysis, input after showing the plot if None
 
         SNP_DPmean_threshold: float
-            minimal cell-average coverage for a SNP to be included for analysis, input after showing the plot if None (default: None)
+            minimal cell-average coverage for a SNP to be included for analysis, input after showing the plot if None
 
         SNP_logit_var_threshold: float
-            minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None (default: None)
+            minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None
 
         filtering_only: boolean
-            if True, it does not process AF matrices which are required for subsequent analyses in order to speed up (default: False)
+            if True, it does not process AF matrices which are required for subsequent analyses in order to speed up
 
         num_neighbour: integer
-            for missing_value = neighbour only, number of neighbouring cells for imputation (default: 3)
+            for missing_value = neighbour only, number of neighbouring cells for imputation
     """
     
     print("Start filtering low-quality cells and SNPs.")
