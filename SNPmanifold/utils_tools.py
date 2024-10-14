@@ -252,6 +252,10 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         self.AF_filtered_missing_to_zero = AF_filtered_missing_to_zero
         self.AF_filtered_missing_to_mean = AF_filtered_missing_to_mean
         self.AF_filtered_missing_to_half = AF_filtered_missing_to_half
+
+        if self.missing_value == "neighbour":
+
+            self.AF_filtered_missing_to_neighbour = AF_filtered_missing_to_neighbour
         
     self.VCF_filtered = VCF_filtered
     
