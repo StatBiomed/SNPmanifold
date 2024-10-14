@@ -43,7 +43,7 @@ def moving_average(a, n):
     return ret[n-1: ] / n
 
 
-def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only):
+def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only, num_neighbour):
     
     """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -64,7 +64,9 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         filtering_only: boolean
             if True, it does not process AF matrices which are required for subsequent analyses in order to speed up (default: False)
-        
+
+        num_neighbour: integer
+            if missing_value = neighbour only, number of neighbouring cells for imputation (default: 3)
     """
     
     print("Start filtering low-quality cells and SNPs.")
@@ -161,8 +163,44 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         AF_filtered_missing_to_zero = np.copy(AF_filtered)
         AF_filtered_missing_to_mean = np.copy(AF_filtered)
         AF_filtered_missing_to_half = np.copy(AF_filtered)
+
+        AF_filtered_missing_to_zero[np.isnan(AF_filtered_missing_to_zero)] = 0
+        AF_filtered_missing_to_zero = torch.tensor(AF_filtered_missing_to_zero).float()
+        AF_filtered_missing_to_mean[np.isnan(AF_filtered_missing_to_mean)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered_missing_to_mean)]
+        AF_filtered_missing_to_mean = torch.tensor(AF_filtered_missing_to_mean).float()
+        AF_filtered_missing_to_half[np.isnan(AF_filtered_missing_to_half)] = 0.5
+        AF_filtered_missing_to_half = torch.tensor(AF_filtered_missing_to_half).float()
+
+        if self.missing_value == "neighbour":
+            
+            binomial_distance = nn.BCELoss(reduction = 'none')
+            pair_binomial_distance = np.empty((cell_total, cell_total))
+
+            for w in range(cell_total):
+    
+                cell_distance = binomial_distance(AF_filtered_missing_to_mean, torch.outer(torch.ones(cell_total), AF_filtered_missing_to_mean[w, :])).numpy()
+                cell_distance[~np.logical_or(np.isnan(AF_filtered_missing_to_nan), np.isnan(np.outer(np.ones(cell_total), AF_filtered_missing_to_nan[w, :])))] = np.nan
+                pair_binomial_distance[w, :] = np.nanmean(cell_distance, 1)
+    
+            for k in range(cell_total):
+    
+                pair_binomial_distance[k, k] = np.nan
+
+            pair_binomial_distance_argsorted = pair_binomial_distance.argsort(axis = -1) 
+
+            impute_AF = lambda t: np.mean(t[~np.isnan(t)][:num_neighbour])
+
+            AF_imputed = np.empty((cell_total, SNP_total))
+
+            for k in range(cell_total):
+    
+                AF_imputed[k, :] np.apply_along_axis(impute_AF, 0, AF_filtered_missing_to_nan[pair_binomial_distance_argsorted[k, :], :])
+    
+            AF_filtered_missing_to_neighbour = np.copy(AF_filtered_missing_to_nan)
+            AF_filtered_missing_to_neighbour[np.isnan(AF_filtered_missing_to_neighbour)] = AF_imputed[np.isnan(AF_filtered_missing_to_neighbour)]
+            AF_filtered = np.copy(AF_filtered_missing_to_neighbour)
         
-        if self.missing_value == "mean":
+        elif self.missing_value == "mean":
             
             AF_filtered[np.isnan(AF_filtered)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered)]
         
@@ -171,12 +209,6 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             AF_filtered[np.isnan(AF_filtered)] = self.missing_value
         
         AF_filtered = torch.tensor(AF_filtered).float()
-        AF_filtered_missing_to_zero[np.isnan(AF_filtered_missing_to_zero)] = 0
-        AF_filtered_missing_to_zero = torch.tensor(AF_filtered_missing_to_zero).float()
-        AF_filtered_missing_to_mean[np.isnan(AF_filtered_missing_to_mean)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered_missing_to_mean)]
-        AF_filtered_missing_to_mean = torch.tensor(AF_filtered_missing_to_mean).float()
-        AF_filtered_missing_to_half[np.isnan(AF_filtered_missing_to_half)] = 0.5
-        AF_filtered_missing_to_half = torch.tensor(AF_filtered_missing_to_half).float()
         
     if self.is_VCF == True:
             
