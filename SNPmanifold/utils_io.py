@@ -58,7 +58,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     SNPread: string
         optional observed-SNP normalization, 'normalized' or 'unnormalized'
         
-    missing_value: float between 0 and 1, or string 'mean'
+    missing_value: float between 0 and 1, or string 'mean' or 'neighbour'
         impute value for missing allele frequency in AF matrix, i.e. DP = 0
         
     cell_weight: string
