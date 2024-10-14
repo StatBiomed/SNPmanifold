@@ -340,7 +340,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
     cell_SNPread_filtered = np.count_nonzero(self.DP_filtered, 1)
     cell_SNPread_weight = torch.tensor(np.outer(cell_SNPread_filtered, np.ones(z_dim))).float()
     
-    data_loader = DataLoader(AF_DP_combined, int(np.ceil(self.cell_total / num_batch)), shuffle = True)
+    data_loader = DataLoader(AF_DP_combined, int(np.ceil(self.cell_total / num_batch)), shuffle = True, generator = torch.Generator(device = 'cuda'))
     
     if self.SNPread == "normalized" and self.cell_weight == "unnormalized":
     
