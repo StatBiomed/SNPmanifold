@@ -101,7 +101,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         
     SNP_DPmean_filter = SNP_DPmean > SNP_DPmean_threshold
     
-    SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).numpy()
+    SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
     
     plt.figure(figsize = (10, 7))
     plt.title("SNPs sorted by logit-variance")
@@ -180,7 +180,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
             for w in range(cell_total):
     
-                cell_distance = binomial_distance(AF_filtered_missing_to_mean, torch.outer(torch.ones(cell_total), AF_filtered_missing_to_mean[w, :])).numpy()
+                cell_distance = binomial_distance(AF_filtered_missing_to_mean, torch.outer(torch.ones(cell_total), AF_filtered_missing_to_mean[w, :])).cpu().numpy()
                 cell_distance[~np.logical_or(np.isnan(AF_filtered_missing_to_nan), np.isnan(np.outer(np.ones(cell_total), AF_filtered_missing_to_nan[w, :])))] = np.nan
                 pair_binomial_distance[w, :] = np.nanmean(cell_distance, 1)
     
@@ -355,7 +355,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
 
             for batch, x in enumerate(data_loader):
 
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].numpy(), 1)
+                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
                 cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
 
                 x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total], cell_SNPread_weight_batch)
@@ -382,7 +382,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
             cost_recon[epoch] = recon_loss
             cost_div[epoch] = kl_div
         
-        latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().numpy()
+        latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().cpu().numpy()
             
     elif self.SNPread == "unnormalized" and self.cell_weight == "unnormalized":
         
@@ -397,7 +397,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
 
             for batch, x in enumerate(data_loader):
                 
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].numpy(), 1)
+                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
 
                 x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total])
                 kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
@@ -423,7 +423,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
             cost_recon[epoch] = recon_loss
             cost_div[epoch] = kl_div
             
-        latent = model.encode(self.AF_filtered)[0].detach().numpy()
+        latent = model.encode(self.AF_filtered)[0].detach().cpu().numpy()
         
     elif self.SNPread == "normalized" and self.cell_weight == "normalized":
     
@@ -438,7 +438,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
 
             for batch, x in enumerate(data_loader):
 
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].numpy(), 1)
+                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
                 cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
 
                 x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total], cell_SNPread_weight_batch)
@@ -465,7 +465,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
             cost_recon[epoch] = recon_loss
             cost_div[epoch] = kl_div
         
-        latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().numpy()
+        latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().cpu().numpy()
         
     elif self.SNPread == "unnormalized" and self.cell_weight == "normalized":
         
@@ -480,7 +480,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
 
             for batch, x in enumerate(data_loader):
                 
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].numpy(), 1)
+                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
 
                 x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total])
                 kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
@@ -506,7 +506,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
             cost_recon[epoch] = recon_loss
             cost_div[epoch] = kl_div
             
-        latent = model.encode(self.AF_filtered)[0].detach().numpy()
+        latent = model.encode(self.AF_filtered)[0].detach().cpu().numpy()
 
     self.num_epoch = num_epoch
     self.stepsize = stepsize
@@ -1386,9 +1386,9 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     
     for m in range(cluster_no):
         
-        SNP_cluster_logit_var[m, :] = torch.var(torch.logit(self.AF_filtered_missing_to_mean[clusters[m], :], eps = 0.01), 0).numpy()
-        SNP_cluster_AF_filtered_missing_to_zero[m, :] = np.mean(self.AF_filtered_missing_to_zero.numpy()[clusters[m], :], 0)
-        SNP_cluster_AF_filtered_missing_to_mean[m, :] = np.mean(self.AF_filtered_missing_to_mean.numpy()[clusters[m], :], 0)
+        SNP_cluster_logit_var[m, :] = torch.var(torch.logit(self.AF_filtered_missing_to_mean[clusters[m], :], eps = 0.01), 0).cpu().numpy()
+        SNP_cluster_AF_filtered_missing_to_zero[m, :] = np.mean(self.AF_filtered_missing_to_zero.cpu().numpy()[clusters[m], :], 0)
+        SNP_cluster_AF_filtered_missing_to_mean[m, :] = np.mean(self.AF_filtered_missing_to_mean.cpu().numpy()[clusters[m], :], 0)
         SNP_cluster_AF_filtered_missing_to_nan[m, :] = np.nanmean((self.AD_filtered / self.DP_filtered)[clusters[m], :], 0)
         centre_cluster[m, :] = np.mean(self.latent[clusters[m], :], 0)
 
@@ -1837,11 +1837,11 @@ def scatter_AF(self, SNP_name, dpi):
     
     if self.is_VCF == True:
         
-        AF_SNP = self.AF_filtered_missing_to_zero.numpy()[:, np.where(self.VCF_filtered["TEXT"].to_numpy() == SNP_name)[0][0]]
+        AF_SNP = self.AF_filtered_missing_to_zero.cpu().numpy()[:, np.where(self.VCF_filtered["TEXT"].to_numpy() == SNP_name)[0][0]]
         
     elif self.is_VCF == False:
         
-        AF_SNP = self.AF_filtered_missing_to_zero.numpy()[:, np.where(self.VCF_filtered[0].to_numpy() == SNP_name)[0][0]]
+        AF_SNP = self.AF_filtered_missing_to_zero.cpu().numpy()[:, np.where(self.VCF_filtered[0].to_numpy() == SNP_name)[0][0]]
     
     AF_density = np.round(AF_SNP * 100).astype(int)
     
