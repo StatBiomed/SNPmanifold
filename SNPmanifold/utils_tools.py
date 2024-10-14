@@ -172,6 +172,8 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         AF_filtered_missing_to_half = torch.tensor(AF_filtered_missing_to_half).float()
 
         if self.missing_value == "neighbour":
+
+            print('Imputing allele frequency using neighbouring cells.')
             
             binomial_distance = nn.BCELoss(reduction = 'none')
             pair_binomial_distance = np.empty((cell_total, cell_total))
