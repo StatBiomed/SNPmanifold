@@ -194,7 +194,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
             for k in range(cell_total):
     
-                AF_imputed[k, :] np.apply_along_axis(impute_AF, 0, AF_filtered_missing_to_nan[pair_binomial_distance_argsorted[k, :], :])
+                AF_imputed[k, :] = np.apply_along_axis(impute_AF, 0, AF_filtered_missing_to_nan[pair_binomial_distance_argsorted[k, :], :])
     
             AF_filtered_missing_to_neighbour = np.copy(AF_filtered_missing_to_nan)
             AF_filtered_missing_to_neighbour[np.isnan(AF_filtered_missing_to_neighbour)] = AF_imputed[np.isnan(AF_filtered_missing_to_neighbour)]
