@@ -66,7 +66,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             if True, it does not process AF matrices which are required for subsequent analyses in order to speed up (default: False)
 
         num_neighbour: integer
-            if missing_value = neighbour only, number of neighbouring cells for imputation (default: 3)
+            for missing_value = neighbour only, number of neighbouring cells for imputation (default: 3)
     """
     
     print("Start filtering low-quality cells and SNPs.")
