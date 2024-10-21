@@ -6,7 +6,7 @@ SNPmanifold first performs simple filtering on AD matrix and DP matrix for high-
 
 ## Installation
 
-Quick install can be achieved via pip
+Quick install can be achieved via pip (python 3.8 needed)
 
 ```bash
 # for published version
