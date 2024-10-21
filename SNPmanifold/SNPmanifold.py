@@ -110,7 +110,7 @@ class SNP_VAE:
         
         umap_retrain(self)
         
-    def clustering(self, algorithm = "leiden_umap3d", max_cluster = 15, resolution = 1):
+    def clustering(self, algorithm = "leiden_full", max_cluster = 15, resolution = 1):
         
         """
         Cluster cells using k-means clustering or Leiden clustering in SCANPY, in either full-dimensional latent space or 3D UMAP
@@ -118,7 +118,7 @@ class SNP_VAE:
         Parameters
         ----------
         algorithm: string 
-            'kmeans_umap3d', 'kmeans_full', 'leiden_umap3d', or 'leiden_full' (default: 'leiden_umap3d')
+            'kmeans_umap3d', 'kmeans_full', 'leiden_umap3d', or 'leiden_full' (default: 'leiden_full')
 
         max_cluster: integer 
             for k-means clustering only, maximum number of clusters (default: 15)
