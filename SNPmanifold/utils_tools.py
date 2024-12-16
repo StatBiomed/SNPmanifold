@@ -1841,13 +1841,13 @@ def scatter_AF(self, SNP_name, dpi):
     
     if self.is_VCF == True:
         
-        AF_SNP = self.AF_filtered_missing_to_zero.cpu().numpy()[:, np.where(self.VCF_filtered["TEXT"].to_numpy() == SNP_name)[0][0]]
+        AF_SNP = self.AF_filtered_missing_to_nan[:, np.where(self.VCF_filtered["TEXT"].to_numpy() == SNP_name)[0][0]]
         
     elif self.is_VCF == False:
         
-        AF_SNP = self.AF_filtered_missing_to_zero.cpu().numpy()[:, np.where(self.VCF_filtered[0].to_numpy() == SNP_name)[0][0]]
+        AF_SNP = self.AF_filtered_missing_to_nan[:, np.where(self.VCF_filtered[0].to_numpy() == SNP_name)[0][0]]
     
-    AF_density = np.round(AF_SNP * 100).astype(int)
+    AF_density = np.round(AF_SNP[~np.isnan(AF_SNP)] * 100).astype(int)
     
     counter = collections.Counter(AF_density)
     numbers_AF = list(counter.keys())
@@ -1859,7 +1859,7 @@ def scatter_AF(self, SNP_name, dpi):
 
     for j in numbers_AF:
 
-        axs.scatter(self.embedding_2d[AF_density == j, 0], self.embedding_2d[AF_density == j, 1], s = 5, color = color_AF[j])
+        axs.scatter(self.embedding_2d[~np.isnan(AF_SNP), :][AF_density == j, 0], self.embedding_2d[~np.isnan(AF_SNP), :][AF_density == j, 1], s = 5, color = color_AF[j])
 
     axs.set_xticks([])
     axs.set_yticks([])
