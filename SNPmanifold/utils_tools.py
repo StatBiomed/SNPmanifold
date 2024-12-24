@@ -168,6 +168,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             AF_filtered = AD_filtered / DP_filtered
             
         AF_filtered_mean = np.nanmean(AF_filtered, 0)
+        AF_filtered_mean[np.isnan(AF_filtered_mean)] = 0
         AF_filtered_missing_to_nan = np.copy(AF_filtered)
         AF_filtered_missing_to_zero = np.copy(AF_filtered)
         AF_filtered_missing_to_mean = np.copy(AF_filtered)
