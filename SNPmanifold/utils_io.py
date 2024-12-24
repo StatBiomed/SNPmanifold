@@ -95,6 +95,14 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
         
         AD_raw = mmread(AD).toarray().T
         DP_raw = mmread(DP).toarray().T
+
+    if UMI_correction == True:
+
+        AD_raw = AD_raw - 1
+        DP_raw = DP_raw - 2
+
+        AD_raw = np.clip(AD_raw, 0, None)
+        DP_raw = np.clip(DP_raw, 0, None)
     
     with warnings.catch_warnings():
         
