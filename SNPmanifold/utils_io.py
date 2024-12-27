@@ -96,7 +96,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
         AD_raw = mmread(AD).toarray().T
         DP_raw = mmread(DP).toarray().T
 
-    if self.UMI_correction == True:
+    if self.UMI_correction == 'negative':
 
         WT_raw = np.clip(DP_raw - AD_raw - 1, 0, None)
         AD_raw = np.clip(AD_raw - 1, 0, None)
