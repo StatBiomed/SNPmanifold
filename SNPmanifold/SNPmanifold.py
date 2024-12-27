@@ -5,7 +5,7 @@ from .utils_tools import filter_data, summary_filtering, train_VAE, summary_trai
 
 class SNP_VAE:
     
-    def __init__(self, path = None, SNP_mask = [], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized", prior = None, UMI_correction = False):
+    def __init__(self, path = None, SNP_mask = [], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized", prior = None, UMI_correction = None):
         
         """
         Load AD and DP matrices, VCF.gz file or variant_name.tsv file for subsequent analyses in SNP_VAE 
@@ -42,8 +42,8 @@ class SNP_VAE:
         prior: string
             path of prior weights of mutation for each variant in csv format
 
-        UMI_correction: boolean
-            ignore counts with UMI = 1 in the model (default: True)
+        UMI_correction: string
+            add pseudocounts to AD and DP matrices in the model, None or 'positive' or 'negative' (default: None)
 
         """
 
