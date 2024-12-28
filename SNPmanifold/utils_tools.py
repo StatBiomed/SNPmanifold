@@ -420,184 +420,367 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
     
     loss_fn = nn.BCELoss(reduction = 'none')
 
-    if self.is_prior == False:
+    if self.UMI_correction == 'positive':
 
-        AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
-
-    elif self.is_prior == True:
-
-        AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered * np.outer(np.ones(self.cell_total), self.prior_raw[self.SNP_filter]))), 1).float()
+        if self.is_prior == False:
     
-    cell_SNPread_filtered = np.count_nonzero(self.DP_filtered, 1)
-    cell_SNPread_weight = torch.tensor(np.outer(cell_SNPread_filtered, np.ones(z_dim))).float()
+            AF_DP_combined = torch.cat((self.AF_filtered_missing_to_mean, self.AF_filtered_positive_corrected, torch.tensor(self.DP_filtered)), 1).float()
     
-    data_loader = DataLoader(AF_DP_combined, int(np.ceil(self.cell_total / num_batch)), shuffle = True, generator = torch.Generator(device = 'cuda'))
+        elif self.is_prior == True:
     
-    if self.SNPread == "normalized" and self.cell_weight == "unnormalized":
+            AF_DP_combined = torch.cat((self.AF_filtered_missing_to_mean, self.AF_filtered_positive_corrected, torch.tensor(self.DP_filtered * np.outer(np.ones(self.cell_total), self.prior_raw[self.SNP_filter]))), 1).float()
+        
+        cell_SNPread_filtered = np.count_nonzero(self.DP_filtered, 1)
+        cell_SNPread_weight = torch.tensor(np.outer(cell_SNPread_filtered, np.ones(z_dim))).float()
+        
+        data_loader = DataLoader(AF_DP_combined, int(np.ceil(self.cell_total / num_batch)), shuffle = True, generator = torch.Generator(device = 'cuda'))
+        
+        if self.SNPread == "normalized" and self.cell_weight == "unnormalized":
+        
+            model = VAE_normalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
     
-        model = VAE_normalized(self.SNP_total, z_dim)
-        optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
-
-        cost_total = np.empty(num_epoch)
-        cost_recon = np.empty(num_epoch)
-        cost_div = np.empty(num_epoch)
-
-        for epoch in range(num_epoch):
-
-            for batch, x in enumerate(data_loader):
-
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
-                cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
-
-                x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total], cell_SNPread_weight_batch)
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, (self.SNP_total * 2):].cpu().numpy(), 1)
+                    cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
+    
+                    x_reconst_mu, mu, log_var = model(x[:, self.SNP_total:(self.SNP_total * 2)], cell_SNPread_weight_batch)
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, (self.SNP_total * 2):]) / torch.tensor(np.sum(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
                 kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-                recon_loss = torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered_batch))
+                recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):]) / torch.tensor(np.sum(cell_SNPread_filtered))
                 loss_total = recon_loss + beta * kl_div
-
-                optimizer.zero_grad()
-                loss_total.backward()
-                optimizer.step()
-
-            x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
-            kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-            recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered))
-            loss_total = recon_loss + beta * kl_div
-            
-            if ((epoch + 1) % 10) == 0:
                 
-                if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
-
-                    print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
-
-            cost_total[epoch] = loss_total
-            cost_recon[epoch] = recon_loss
-            cost_div[epoch] = kl_div
-        
-        latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().cpu().numpy()
-            
-    elif self.SNPread == "unnormalized" and self.cell_weight == "unnormalized":
-        
-        model = VAE_unnormalized(self.SNP_total, z_dim)
-        optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
-
-        cost_total = np.empty(num_epoch)
-        cost_recon = np.empty(num_epoch)
-        cost_div = np.empty(num_epoch)
-
-        for epoch in range(num_epoch):
-
-            for batch, x in enumerate(data_loader):
-                
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
-
-                x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total])
-                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-                recon_loss = torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered_batch))
-                loss_total = recon_loss + beta * kl_div
-
-                optimizer.zero_grad()
-                loss_total.backward()
-                optimizer.step()
-
-            x_reconst_mu, mu, log_var = model(self.AF_filtered)
-            kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-            recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered))
-            loss_total = recon_loss + beta * kl_div
-            
-            if ((epoch + 1) % 10) == 0:
-                
-                if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
-
-                    print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
-
-            cost_total[epoch] = loss_total
-            cost_recon[epoch] = recon_loss
-            cost_div[epoch] = kl_div
-            
-        latent = model.encode(self.AF_filtered)[0].detach().cpu().numpy()
-        
-    elif self.SNPread == "normalized" and self.cell_weight == "normalized":
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
     
-        model = VAE_normalized(self.SNP_total, z_dim)
-        optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
-
-        cost_total = np.empty(num_epoch)
-        cost_recon = np.empty(num_epoch)
-        cost_div = np.empty(num_epoch)
-
-        for epoch in range(num_epoch):
-
-            for batch, x in enumerate(data_loader):
-
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
-                cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
-
-                x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total], cell_SNPread_weight_batch)
-                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-                recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:], 1) / torch.tensor(cell_SNPread_filtered_batch))
-                loss_total = recon_loss + beta * kl_div
-
-                optimizer.zero_grad()
-                loss_total.backward()
-                optimizer.step()
-
-            x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
-            kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-            recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:], 1) / torch.tensor(self.cell_SNPread_filtered))
-            loss_total = recon_loss + beta * kl_div
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
             
-            if ((epoch + 1) % 10) == 0:
+            latent = model.encode(self.AF_filtered_positive_corrected, cell_SNPread_weight)[0].detach().cpu().numpy()
                 
-                if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
-
-                    print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
-
-            cost_total[epoch] = loss_total
-            cost_recon[epoch] = recon_loss
-            cost_div[epoch] = kl_div
-        
-        latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().cpu().numpy()
-        
-    elif self.SNPread == "unnormalized" and self.cell_weight == "normalized":
-        
-        model = VAE_unnormalized(self.SNP_total, z_dim)
-        optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
-
-        cost_total = np.empty(num_epoch)
-        cost_recon = np.empty(num_epoch)
-        cost_div = np.empty(num_epoch)
-
-        for epoch in range(num_epoch):
-
-            for batch, x in enumerate(data_loader):
-                
-                cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
-
-                x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total])
-                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-                recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:], 1) / torch.tensor(cell_SNPread_filtered_batch))
-                loss_total = recon_loss + beta * kl_div
-
-                optimizer.zero_grad()
-                loss_total.backward()
-                optimizer.step()
-
-            x_reconst_mu, mu, log_var = model(self.AF_filtered)
-            kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
-            recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:], 1) / torch.tensor(self.cell_SNPread_filtered))
-            loss_total = recon_loss + beta * kl_div
-
-            if ((epoch + 1) % 10) == 0:
-                
-                if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
-
-                    print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
-
-            cost_total[epoch] = loss_total
-            cost_recon[epoch] = recon_loss
-            cost_div[epoch] = kl_div
+        elif self.SNPread == "unnormalized" and self.cell_weight == "unnormalized":
             
-        latent = model.encode(self.AF_filtered)[0].detach().cpu().numpy()
+            model = VAE_unnormalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
+    
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+                    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, (self.SNP_total * 2):].cpu().numpy(), 1)
+    
+                    x_reconst_mu, mu, log_var = model(x[:, self.SNP_total:(self.SNP_total * 2)])
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, (self.SNP_total * 2):]) / torch.tensor(np.sum(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered)
+                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):]) / torch.tensor(np.sum(cell_SNPread_filtered))
+                loss_total = recon_loss + beta * kl_div
+                
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
+    
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
+                
+            latent = model.encode(self.AF_filtered_positive_corrected)[0].detach().cpu().numpy()
+            
+        elif self.SNPread == "normalized" and self.cell_weight == "normalized":
+        
+            model = VAE_normalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
+    
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, (self.SNP_total * 2):].cpu().numpy(), 1)
+                    cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
+    
+                    x_reconst_mu, mu, log_var = model(x[:, self.SNP_total:(self.SNP_total * 2)], cell_SNPread_weight_batch)
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, (self.SNP_total * 2):], 1) / torch.tensor(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
+                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):], 1) / torch.tensor(self.cell_SNPread_filtered))
+                loss_total = recon_loss + beta * kl_div
+                
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
+    
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
+            
+            latent = model.encode(self.AF_filtered_positive_corrected, cell_SNPread_weight)[0].detach().cpu().numpy()
+            
+        elif self.SNPread == "unnormalized" and self.cell_weight == "normalized":
+            
+            model = VAE_unnormalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
+    
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+                    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, (self.SNP_total * 2):].cpu().numpy(), 1)
+    
+                    x_reconst_mu, mu, log_var = model(x[:, self.SNP_total:(self.SNP_total * 2)])
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, (self.SNP_total * 2):], 1) / torch.tensor(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered)
+                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):], 1) / torch.tensor(self.cell_SNPread_filtered))
+                loss_total = recon_loss + beta * kl_div
+    
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
+    
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
+                
+            latent = model.encode(self.AF_filtered_positive_corrected)[0].detach().cpu().numpy()
+
+    else:
+
+        if self.is_prior == False:
+    
+            AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
+    
+        elif self.is_prior == True:
+    
+            AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered * np.outer(np.ones(self.cell_total), self.prior_raw[self.SNP_filter]))), 1).float()
+        
+        cell_SNPread_filtered = np.count_nonzero(self.DP_filtered, 1)
+        cell_SNPread_weight = torch.tensor(np.outer(cell_SNPread_filtered, np.ones(z_dim))).float()
+        
+        data_loader = DataLoader(AF_DP_combined, int(np.ceil(self.cell_total / num_batch)), shuffle = True, generator = torch.Generator(device = 'cuda'))
+        
+        if self.SNPread == "normalized" and self.cell_weight == "unnormalized":
+        
+            model = VAE_normalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
+    
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
+                    cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
+    
+                    x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total], cell_SNPread_weight_batch)
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
+                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered))
+                loss_total = recon_loss + beta * kl_div
+                
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
+    
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
+            
+            latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().cpu().numpy()
+                
+        elif self.SNPread == "unnormalized" and self.cell_weight == "unnormalized":
+            
+            model = VAE_unnormalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
+    
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+                    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
+    
+                    x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total])
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered)
+                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:]) / torch.tensor(np.sum(cell_SNPread_filtered))
+                loss_total = recon_loss + beta * kl_div
+                
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
+    
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
+                
+            latent = model.encode(self.AF_filtered)[0].detach().cpu().numpy()
+            
+        elif self.SNPread == "normalized" and self.cell_weight == "normalized":
+        
+            model = VAE_normalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
+    
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
+                    cell_SNPread_weight_batch = torch.tensor(np.outer(cell_SNPread_filtered_batch, np.ones(z_dim))).float()
+    
+                    x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total], cell_SNPread_weight_batch)
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:], 1) / torch.tensor(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
+                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:], 1) / torch.tensor(self.cell_SNPread_filtered))
+                loss_total = recon_loss + beta * kl_div
+                
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
+    
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
+            
+            latent = model.encode(self.AF_filtered, cell_SNPread_weight)[0].detach().cpu().numpy()
+            
+        elif self.SNPread == "unnormalized" and self.cell_weight == "normalized":
+            
+            model = VAE_unnormalized(self.SNP_total, z_dim)
+            optimizer = torch.optim.Adam(model.parameters(), lr = stepsize)
+    
+            cost_total = np.empty(num_epoch)
+            cost_recon = np.empty(num_epoch)
+            cost_div = np.empty(num_epoch)
+    
+            for epoch in range(num_epoch):
+    
+                for batch, x in enumerate(data_loader):
+                    
+                    cell_SNPread_filtered_batch = np.count_nonzero(x[:, self.SNP_total:].cpu().numpy(), 1)
+    
+                    x_reconst_mu, mu, log_var = model(x[:, :self.SNP_total])
+                    kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                    recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, x[:, :self.SNP_total]) * x[:, self.SNP_total:], 1) / torch.tensor(cell_SNPread_filtered_batch))
+                    loss_total = recon_loss + beta * kl_div
+    
+                    optimizer.zero_grad()
+                    loss_total.backward()
+                    optimizer.step()
+    
+                x_reconst_mu, mu, log_var = model(self.AF_filtered)
+                kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
+                recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, self.SNP_total:], 1) / torch.tensor(self.cell_SNPread_filtered))
+                loss_total = recon_loss + beta * kl_div
+    
+                if ((epoch + 1) % 10) == 0:
+                    
+                    if (epoch + 1) <= 100 or ((epoch + 1) % 100) == 0:
+    
+                        print("Epoch[{}/{}], Cost: {:.6f}".format(epoch + 1, num_epoch, loss_total))
+    
+                cost_total[epoch] = loss_total
+                cost_recon[epoch] = recon_loss
+                cost_div[epoch] = kl_div
+                
+            latent = model.encode(self.AF_filtered)[0].detach().cpu().numpy()
 
     self.num_epoch = num_epoch
     self.stepsize = stepsize
