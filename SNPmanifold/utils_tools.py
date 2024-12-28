@@ -181,46 +181,110 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         AF_filtered_missing_to_half[np.isnan(AF_filtered_missing_to_half)] = 0.5
         AF_filtered_missing_to_half = torch.tensor(AF_filtered_missing_to_half).float()
 
+        if self.UMI_correction == 'positive':
+
+            AF_filtered_positive_corrected = (AD_filtered + 1) / (DP_filtered + 2)
+            AF_filtered_positive_corrected[np.isnan(AF_filtered_missing_to_nan)] = np.nan
+
+            AF_filtered_positive_corrected_mean = np.nanmean(AF_filtered_positive_corrected, 0)
+            AF_filtered_positive_corrected_mean[np.isnan(AF_filtered_positive_corrected_mean)] = 0
+            AF_filtered_positive_corrected_missing_to_nan = np.copy(AF_filtered_positive_corrected)
+            AF_filtered_positive_corrected_missing_to_mean = np.copy(AF_filtered_positive_corrected)
+
+            AF_filtered_positive_corrected_missing_to_mean[np.isnan(AF_filtered_positive_corrected_missing_to_mean)] = np.outer(np.ones(cell_total), AF_filtered_positive_corrected_mean)[np.isnan(AF_filtered_positive_corrected_missing_to_mean)]
+            AF_filtered_positive_corrected_missing_to_mean = torch.tensor(AF_filtered_positive_corrected_missing_to_mean).float()
+
         if self.missing_value == "neighbour":
 
-            print('Imputing allele frequency using neighbouring cells.')
-            
-            binomial_distance = nn.BCELoss(reduction = 'none')
-            pair_binomial_distance = np.empty((cell_total, cell_total))
+            if self.UMI_correction == 'positive':
 
-            for w in range(cell_total):
+                print('Imputing allele frequency using neighbouring cells.')
+                
+                binomial_distance = nn.BCELoss(reduction = 'none')
+                pair_binomial_distance = np.empty((cell_total, cell_total))
     
-                cell_distance = binomial_distance(AF_filtered_missing_to_mean, torch.outer(torch.ones(cell_total), AF_filtered_missing_to_mean[w, :])).cpu().numpy()
-                cell_distance[~np.logical_or(np.isnan(AF_filtered_missing_to_nan), np.isnan(np.outer(np.ones(cell_total), AF_filtered_missing_to_nan[w, :])))] = np.nan
-                pair_binomial_distance[w, :] = np.nanmean(cell_distance, 1)
+                for w in range(cell_total):
+        
+                    cell_distance = binomial_distance(AF_filtered_positive_corrected_missing_to_mean, torch.outer(torch.ones(cell_total), AF_filtered_positive_corrected_missing_to_mean[w, :])).cpu().numpy()
+                    cell_distance[~np.logical_or(np.isnan(AF_filtered_positive_corrected_missing_to_nan), np.isnan(np.outer(np.ones(cell_total), AF_filtered_positive_corrected_missing_to_nan[w, :])))] = np.nan
+                    pair_binomial_distance[w, :] = np.nanmean(cell_distance, 1)
+        
+                for k in range(cell_total):
+        
+                    pair_binomial_distance[k, k] = np.nan
     
-            for k in range(cell_total):
+                pair_binomial_distance_argsorted = pair_binomial_distance.argsort(axis = -1) 
     
-                pair_binomial_distance[k, k] = np.nan
+                impute_AF = lambda t: np.mean(t[~np.isnan(t)][:num_neighbour])
+    
+                AF_imputed = np.empty((cell_total, SNP_total))
+    
+                for k in range(cell_total):
+        
+                    AF_imputed[k, :] = np.apply_along_axis(impute_AF, 0, AF_filtered_positive_corrected_missing_to_nan[pair_binomial_distance_argsorted[k, :], :])
+        
+                AF_filtered_positive_corrected_missing_to_neighbour = np.copy(AF_filtered_positive_corrected_missing_to_nan)
+                AF_filtered_positive_corrected_missing_to_neighbour[np.isnan(AF_filtered_positive_corrected_missing_to_neighbour)] = AF_imputed[np.isnan(AF_filtered_positive_corrected_missing_to_neighbour)]
+                AF_filtered_positive_corrected = np.copy(AF_filtered_missing_positive_corrected_to_neighbour)
 
-            pair_binomial_distance_argsorted = pair_binomial_distance.argsort(axis = -1) 
+            else:
 
-            impute_AF = lambda t: np.mean(t[~np.isnan(t)][:num_neighbour])
-
-            AF_imputed = np.empty((cell_total, SNP_total))
-
-            for k in range(cell_total):
+                print('Imputing allele frequency using neighbouring cells.')
+                
+                binomial_distance = nn.BCELoss(reduction = 'none')
+                pair_binomial_distance = np.empty((cell_total, cell_total))
     
-                AF_imputed[k, :] = np.apply_along_axis(impute_AF, 0, AF_filtered_missing_to_nan[pair_binomial_distance_argsorted[k, :], :])
+                for w in range(cell_total):
+        
+                    cell_distance = binomial_distance(AF_filtered_missing_to_mean, torch.outer(torch.ones(cell_total), AF_filtered_missing_to_mean[w, :])).cpu().numpy()
+                    cell_distance[~np.logical_or(np.isnan(AF_filtered_missing_to_nan), np.isnan(np.outer(np.ones(cell_total), AF_filtered_missing_to_nan[w, :])))] = np.nan
+                    pair_binomial_distance[w, :] = np.nanmean(cell_distance, 1)
+        
+                for k in range(cell_total):
+        
+                    pair_binomial_distance[k, k] = np.nan
     
-            AF_filtered_missing_to_neighbour = np.copy(AF_filtered_missing_to_nan)
-            AF_filtered_missing_to_neighbour[np.isnan(AF_filtered_missing_to_neighbour)] = AF_imputed[np.isnan(AF_filtered_missing_to_neighbour)]
-            AF_filtered = np.copy(AF_filtered_missing_to_neighbour)
+                pair_binomial_distance_argsorted = pair_binomial_distance.argsort(axis = -1) 
+    
+                impute_AF = lambda t: np.mean(t[~np.isnan(t)][:num_neighbour])
+    
+                AF_imputed = np.empty((cell_total, SNP_total))
+    
+                for k in range(cell_total):
+        
+                    AF_imputed[k, :] = np.apply_along_axis(impute_AF, 0, AF_filtered_missing_to_nan[pair_binomial_distance_argsorted[k, :], :])
+        
+                AF_filtered_missing_to_neighbour = np.copy(AF_filtered_missing_to_nan)
+                AF_filtered_missing_to_neighbour[np.isnan(AF_filtered_missing_to_neighbour)] = AF_imputed[np.isnan(AF_filtered_missing_to_neighbour)]
+                AF_filtered = np.copy(AF_filtered_missing_to_neighbour)
         
         elif self.missing_value == "mean":
+
+            if self.UMI_correction == 'positive':
             
-            AF_filtered[np.isnan(AF_filtered)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered)]
+                AF_filtered_positive_corrected[np.isnan(AF_filtered_positive_corrected)] = np.outer(np.ones(cell_total), AF_filtered_positive_corrected_mean)[np.isnan(AF_filtered_positive_corrected)]
+
+            else:
+
+                AF_filtered[np.isnan(AF_filtered)] = np.outer(np.ones(cell_total), AF_filtered_mean)[np.isnan(AF_filtered)]
         
         else:
+
+            if self.UMI_correction == 'positive':
             
-            AF_filtered[np.isnan(AF_filtered)] = self.missing_value
-        
-        AF_filtered = torch.tensor(AF_filtered).float()
+                AF_filtered_positive_corrected[np.isnan(AF_filtered_positive_corrected)] = self.missing_value
+
+            else:
+
+                AF_filtered[np.isnan(AF_filtered)] = self.missing_value
+
+        if self.UMI_correction == 'positive':
+
+            AF_filtered_positive_corrected = torch.tensor(AF_filtered_positive_corrected).float()
+
+        else:
+            
+            AF_filtered = torch.tensor(AF_filtered).float()
         
     if self.is_VCF == True:
             
@@ -263,9 +327,22 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         self.AF_filtered_missing_to_mean = AF_filtered_missing_to_mean
         self.AF_filtered_missing_to_half = AF_filtered_missing_to_half
 
+        if self.UMI_correction == 'positive':
+
+            self.AF_filtered_positive_corrected = AF_filtered_positive_corrected
+            self.AF_filtered_positive_corrected_mean = AF_filtered_positive_corrected_mean
+            self.AF_filtered_positive_corrected_missing_to_nan = AF_filtered_positive_corrected_missing_to_nan
+            self.AF_filtered_positive_corrected_missing_to_mean = AF_filtered_positive_corrected_missing_to_mean
+
         if self.missing_value == "neighbour":
 
-            self.AF_filtered_missing_to_neighbour = AF_filtered_missing_to_neighbour
+            if self.UMI_correction == 'positive':
+
+                self.AF_filtered_positive_corrected_missing_to_neighbour = AF_filtered_positive_corrected_missing_to_neighbour
+
+            else:
+                
+                self.AF_filtered_missing_to_neighbour = AF_filtered_missing_to_neighbour
         
     self.VCF_filtered = VCF_filtered
     
@@ -344,7 +421,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
     loss_fn = nn.BCELoss(reduction = 'none')
 
     if self.is_prior == False:
-        
+
         AF_DP_combined = torch.cat((self.AF_filtered, torch.tensor(self.DP_filtered)), 1).float()
 
     elif self.is_prior == True:
