@@ -1667,6 +1667,9 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         centre_cluster[m, :] = np.mean(self.latent[clusters[m], :], 0)
 
     SNP_cluster_AF_filtered_missing_to_nan[np.isnan(SNP_cluster_AF_filtered_missing_to_nan)] = SNP_cluster_AF_filtered_missing_to_mean[np.isnan(SNP_cluster_AF_filtered_missing_to_nan)]
+
+    binomial_distance = nn.BCELoss(reduction = 'none')
+    cluster_BCE = binomial_distance(torch.tensor(np.outer(np.ones(cluster_no), self.AF_filtered_mean)), torch.tensor(SNP_cluster_AF_filtered_missing_to_mean)).cpu().numpy()
     
     ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var[self.SNP_filter], 0.01, None)
     f_stat = np.clip(1 / ratio_logit_var, 1.001, 20)
@@ -1796,6 +1799,8 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     self.SNP_cluster_logit_var = SNP_cluster_logit_var
     self.SNP_cluster_AF_filtered_missing_to_zero = SNP_cluster_AF_filtered_missing_to_zero
     self.SNP_cluster_AF_filtered_missing_to_mean = SNP_cluster_AF_filtered_missing_to_mean
+    self.SNP_cluster_AF_filtered_missing_to_nan = SNP_cluster_AF_filtered_missing_to_nan
+    self.cluster_BCE = cluster_BCE
     self.centre_cluster = centre_cluster
     self.ratio_logit_var = ratio_logit_var
     self.f_stat = f_stat
