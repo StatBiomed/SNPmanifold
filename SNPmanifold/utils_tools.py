@@ -2143,3 +2143,77 @@ def scatter_AF(self, SNP_name, dpi):
     
     plt.show()
 
+def heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap):
+
+    """
+    Visualize allele frequency of specific SNPs in heatmap
+
+    Parameters
+    ----------
+    SNP_name: list
+        list of names of the SNPs to visualize
+
+    dpi: float
+        dpi resolution for figures
+
+    bad_color: string
+        color of heatmap when allele frequency is missing, i.e. DP = 0 (default: 'blue')
+
+    fontsize_c: float
+        fontsize of cluster labels on heatmap
+
+    fontsize_x: float
+        fontsize of cell labels on heatmap
+
+    fontsize_y: float
+        fontsize of SNP labels on heatmap
+
+    cmap_heatmap:
+        colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
+    """
+
+    clus_colors = pd.Series(self.assigned_label[self.cell_sorted]).map(dict(zip(np.arange(0, self.cluster_no), self.colors)))
+    clus_colors.index = pd.RangeIndex(start = 1, stop = self.cell_total + 1, step = 1)
+    
+    cmap = cmap_heatmap 
+    cmap.set_bad(bad_color)
+
+    AF_sorted_filtered = np.empty((len(SNP_name), self.cell_total))
+    
+    if self.is_VCF == True:
+
+        for w in range(len(SNP_name)):
+        
+            AF_sorted_filtered[w, :] = self.AF_sorted[self.VCF_filtered['TEXT'].to_numpy()[self.rank_SNP] == SNP_name[w], :]
+
+    elif self.is_VCF == False:
+
+        for w in range(len(SNP_name)):
+        
+            AF_sorted_filtered[w, :] = self.AF_sorted[self.VCF_filtered[0].to_numpy()[self.rank_SNP] == SNP_name[w], :]
+
+    fig = sns.clustermap(pd.DataFrame(AF_sorted_filtered, index = SNP_name, columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, len(SNP_name) * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+    
+    fig.ax_col_colors.set_xticks(moving_average(np.cumsum([0] + list(self.cluster_size[self.cluster_order])), 2))
+    
+    if fontsize_c == None:
+        
+        fig.ax_col_colors.set_xticklabels(np.array(self.cluster_order))
+        
+    elif fontsize_c != None:
+        
+        fig.ax_col_colors.set_xticklabels(np.array(self.cluster_order), fontsize = fontsize_c)
+        
+    fig.ax_col_colors.xaxis.set_tick_params(size = 0)
+    fig.ax_col_colors.xaxis.tick_top()
+    
+    if fontsize_x != None:
+        
+        fig.ax_heatmap.set_xticklabels(fig.ax_heatmap.get_xmajorticklabels(), fontsize = fontsize_x)
+    
+    if fontsize_y != None:
+        
+        fig.ax_heatmap.set_yticklabels(fig.ax_heatmap.get_ymajorticklabels(), fontsize = fontsize_y)
+        
+    plt.gcf().set_dpi(dpi)
+    plt.show()
