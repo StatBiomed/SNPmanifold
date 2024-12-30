@@ -225,7 +225,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         
                 AF_filtered_positive_corrected_missing_to_neighbour = np.copy(AF_filtered_positive_corrected_missing_to_nan)
                 AF_filtered_positive_corrected_missing_to_neighbour[np.isnan(AF_filtered_positive_corrected_missing_to_neighbour)] = AF_imputed[np.isnan(AF_filtered_positive_corrected_missing_to_neighbour)]
-                AF_filtered_positive_corrected = np.copy(AF_filtered_missing_positive_corrected_to_neighbour)
+                AF_filtered_positive_corrected = np.copy(AF_filtered_positive_corrected_missing_to_neighbour)
 
             else:
 
