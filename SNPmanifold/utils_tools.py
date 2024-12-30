@@ -460,7 +460,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
                     loss_total.backward()
                     optimizer.step()
     
-                x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
+                x_reconst_mu, mu, log_var = model(self.AF_filtered_positive_corrected, cell_SNPread_weight)
                 kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
                 recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):]) / torch.tensor(np.sum(cell_SNPread_filtered))
                 loss_total = recon_loss + beta * kl_div
@@ -501,7 +501,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
                     loss_total.backward()
                     optimizer.step()
     
-                x_reconst_mu, mu, log_var = model(self.AF_filtered)
+                x_reconst_mu, mu, log_var = model(self.AF_filtered_positive_corrected)
                 kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
                 recon_loss = torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):]) / torch.tensor(np.sum(cell_SNPread_filtered))
                 loss_total = recon_loss + beta * kl_div
@@ -543,7 +543,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
                     loss_total.backward()
                     optimizer.step()
     
-                x_reconst_mu, mu, log_var = model(self.AF_filtered, cell_SNPread_weight)
+                x_reconst_mu, mu, log_var = model(self.AF_filtered_positive_corrected, cell_SNPread_weight)
                 kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
                 recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):], 1) / torch.tensor(self.cell_SNPread_filtered))
                 loss_total = recon_loss + beta * kl_div
@@ -584,7 +584,7 @@ def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch):
                     loss_total.backward()
                     optimizer.step()
     
-                x_reconst_mu, mu, log_var = model(self.AF_filtered)
+                x_reconst_mu, mu, log_var = model(self.AF_filtered_positive_corrected)
                 kl_div = - 0.5 * torch.mean(1 + log_var - mu.pow(2) - log_var.exp())
                 recon_loss = torch.mean(torch.sum(loss_fn(x_reconst_mu, AF_DP_combined[:, :self.SNP_total]) * AF_DP_combined[:, (self.SNP_total * 2):], 1) / torch.tensor(self.cell_SNPread_filtered))
                 loss_total = recon_loss + beta * kl_div
