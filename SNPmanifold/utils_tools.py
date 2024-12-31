@@ -2157,7 +2157,7 @@ def heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize
         dpi resolution for figures
 
     bad_color: string
-        color of heatmap when allele frequency is missing, i.e. DP = 0 (default: 'blue')
+        color of heatmap when allele frequency is missing, i.e. DP = 0
 
     fontsize_c: float
         fontsize of cluster labels on heatmap
@@ -2169,7 +2169,7 @@ def heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize
         fontsize of SNP labels on heatmap
 
     cmap_heatmap:
-        colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
+        colormap used for heatmap visualization
     """
 
     clus_colors = pd.Series(self.assigned_label[self.cell_sorted]).map(dict(zip(np.arange(0, self.cluster_no), self.colors)))
@@ -2215,5 +2215,121 @@ def heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize
         
         fig.ax_heatmap.set_yticklabels(fig.ax_heatmap.get_ymajorticklabels(), fontsize = fontsize_y)
         
+    plt.gcf().set_dpi(dpi)
+    plt.show()
+
+def heatmap_cluster(self, cluster_order, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking):
+
+    """
+        Visualize allele frequency of specific clusters in heatmap
+
+        Parameters
+        ----------
+        cluster_order: list
+            list of clusters to visualize
+
+        dpi: float
+            dpi resolution for figures
+
+        bad_color: string
+            color of heatmap when allele frequency is missing, i.e. DP = 0
+
+        fontsize_c: float
+            fontsize of cluster labels on heatmap
+
+        fontsize_x: float
+            fontsize of cell labels on heatmap
+
+        fontsize_y: float
+            fontsize of SNP labels on heatmap
+
+        cmap_heatmap:
+            colormap used for heatmap visualization
+
+        SNP_ranking: string
+            method for ranking SNPs, 'variance' or 'AF_diff'
+        """
+        
+    cluster_size_specified = self.cluster_size[cluster_order]
+    SNP_no = np.min((self.SNP_total, SNP_no)).astype(int)
+    
+    SNP_cluster_specified_logit_var = self.SNP_cluster_logit_var[cluster_order, :]
+    SNP_cluster_specified_AF_filtered_missing_to_zero = self.SNP_cluster_AF_filtered_missing_to_zero[cluster_order, :]
+    SNP_cluster_specified_AF_filtered_missing_to_mean = self.SNP_cluster_AF_filtered_missing_to_mean[cluster_order, :]
+    SNP_cluster_specified_AF_filtered_missing_to_nan = self.SNP_cluster_AF_filtered_missing_to_nan[cluster_order, :]
+    
+    ratio_logit_var_specified = np.clip(np.min(SNP_cluster_specified_logit_var, 0) / self.SNP_logit_var[self.SNP_filter], 0.01, None)
+    f_stat_specified = np.clip(1 / ratio_logit_var_specified, 1.001, 20)
+    df_bulk = self.cell_total - 1
+    df_cluster_specified = np.array(list(map(lambda x: cluster_size_specified[x], np.argmin(SNP_cluster_specified_logit_var, 0)))) - 1
+    p_value_specified = 1 - stats.f.cdf(f_stat_specified, df_bulk, df_cluster_specified)
+    SNP_cluster_specified_AF_filtered_missing_to_zero_max = np.max(SNP_cluster_specified_AF_filtered_missing_to_zero, 0)
+    SNP_cluster_specified_AF_filtered_missing_to_mean_diff = np.max(SNP_cluster_specified_AF_filtered_missing_to_nan, 0) - np.min(SNP_cluster_specified_AF_filtered_missing_to_nan, 0)
+    
+    rank_SNP_p_value_specified = np.argsort(p_value_specified)
+    SNP_low_p_value_total_specified = np.sum(np.log10(p_value_specified) < -15.5)
+    
+    if SNP_low_p_value_total_specified > 1:
+    
+        SNP_low_p_value_specified = rank_SNP_p_value_specified[:SNP_low_p_value_total_specified]
+    
+        rank_SNP_low_p_value_specified = np.flip(np.argsort(SNP_cluster_specified_AF_filtered_missing_to_zero_max[SNP_low_p_value_specified]))
+        rank_SNP_p_value_specified[:SNP_low_p_value_total_specified] = rank_SNP_p_value_specified[:SNP_low_p_value_total_specified][rank_SNP_low_p_value_specified]
+    
+    rank_SNP_AF_diff_specified = np.flip(np.argsort(SNP_cluster_specified_AF_filtered_missing_to_mean_diff))
+    
+    if SNP_ranking == 'variance':
+    
+        rank_SNP_specified = rank_SNP_p_value_specified
+    
+    elif SNP_ranking == 'AF_diff':
+    
+        rank_SNP_specified = rank_SNP_AF_diff_specified
+
+    cell_sorted_specified = np.empty(0)
+
+    for w in cluster_order:
+    
+        cell_sorted_specified = np.concatenate((cell_sorted_specified, self.clusters[w]), axis = None).astype(int)
+    
+    AF_sorted_specified = self.AF_filtered_missing_to_nan[cell_sorted_specified, :][:, rank_SNP_specified].T
+
+    clus_colors = pd.Series(self.assigned_label[cell_sorted_specified]).map(dict(zip(np.arange(0, self.cluster_no), self.colors)))
+    clus_colors.index = pd.RangeIndex(start = 1, stop = cell_sorted_specified.shape[0] + 1, step = 1)
+    
+    cmap = cmap_heatmap 
+    cmap.set_bad(bad_color)
+    
+    AF_sorted_filtered = np.empty((len(SNP_name), self.cell_total))
+    
+    if self.is_VCF == True:
+            
+        fig = sns.clustermap(pd.DataFrame(AF_sorted_specified[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[rank_SNP_specified][:SNP_no], columns = np.arange(1, cell_sorted_specified.shape[0] + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+        
+    elif self.is_VCF == False:
+            
+        fig = sns.clustermap(pd.DataFrame(AF_sorted_specified[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[rank_SNP_specified][:SNP_no], columns = np.arange(1, cell_sorted_specified.shape[0] + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+    
+    fig.ax_col_colors.set_xticks(moving_average(np.cumsum([0] + list(self.cluster_size[cluster_order])), 2))
+    
+    if fontsize_c == None:
+    
+        fig.ax_col_colors.set_xticklabels(np.array(cluster_order))
+    
+    elif fontsize_c != None:
+    
+        fig.ax_col_colors.set_xticklabels(np.array(cluster_order), fontsize = fontsize_c)
+    
+    fig.ax_col_colors.xaxis.set_tick_params(size = 0)
+    fig.ax_col_colors.xaxis.tick_top()
+    
+    if fontsize_x != None:
+    
+        fig.ax_heatmap.set_xticklabels(fig.ax_heatmap.get_xmajorticklabels(), fontsize = fontsize_x)
+    
+    if fontsize_y != None:
+    
+        fig.ax_heatmap.set_yticklabels(fig.ax_heatmap.get_ymajorticklabels(), fontsize = fontsize_y)
+    
     plt.gcf().set_dpi(dpi)
     plt.show()
