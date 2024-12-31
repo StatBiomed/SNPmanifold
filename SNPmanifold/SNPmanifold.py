@@ -323,4 +323,4 @@ class SNP_VAE:
             method for ranking SNPs, 'variance' or 'AF_diff' (default: 'AF_diff')
         """
 
-        heatmap_cluster(self, cluster_order, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking)
+        heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking)
