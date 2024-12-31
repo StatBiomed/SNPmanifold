@@ -2143,6 +2143,7 @@ def scatter_AF(self, SNP_name, dpi):
     
     plt.show()
 
+
 def heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap):
 
     """
@@ -2217,6 +2218,7 @@ def heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize
         
     plt.gcf().set_dpi(dpi)
     plt.show()
+
 
 def heatmap_cluster(self, cluster_order, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking):
 
