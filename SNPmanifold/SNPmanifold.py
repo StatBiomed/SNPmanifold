@@ -288,7 +288,7 @@ class SNP_VAE:
 
         heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap)
 
-    def cluster_heatmap(self, cluster_order, dpi = mpl.rcParams['figure.dpi'], bad_color = "blue", fontsize_c = None, fontsize_x = None, fontsize_y = None, cmap_heatmap = mpl.colormaps['rocket'], SNP_ranking = 'AF_diff'):
+    def cluster_heatmap(self, cluster_order, SNP_no = 50, dpi = mpl.rcParams['figure.dpi'], bad_color = "blue", fontsize_c = None, fontsize_x = None, fontsize_y = None, cmap_heatmap = mpl.colormaps['rocket'], SNP_ranking = 'AF_diff'):
 
         """
         Visualize allele frequency of specific clusters in heatmap
@@ -297,6 +297,9 @@ class SNP_VAE:
         ----------
         cluster_order: list
             list of clusters to visualize
+
+        SNP_no: integer
+            number of top-ranked SNPs to be visualized in heatmap
 
         dpi: float
             dpi resolution for figures
