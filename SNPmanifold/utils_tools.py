@@ -2220,7 +2220,7 @@ def heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize
     plt.show()
 
 
-def heatmap_cluster(self, cluster_order, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking):
+def heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking):
 
     """
         Visualize allele frequency of specific clusters in heatmap
@@ -2229,6 +2229,9 @@ def heatmap_cluster(self, cluster_order, dpi, bad_color, fontsize_c, fontsize_x,
         ----------
         cluster_order: list
             list of clusters to visualize
+
+        SNP_no: integer
+            number of top-ranked SNPs to be visualized in heatmap
 
         dpi: float
             dpi resolution for figures
