@@ -1,7 +1,7 @@
 import matplotlib as mpl
 
 from .utils_io import load_data
-from .utils_tools import filter_data, summary_filtering, train_VAE, summary_training, umap_retrain, latent_clustering, summary_clustering, tree, summary_phylogeny, scatter_AF
+from .utils_tools import filter_data, summary_filtering, train_VAE, summary_training, umap_retrain, latent_clustering, summary_clustering, tree, summary_phylogeny, scatter_AF, heatmap_SNP, heatmap_cluster
 
 class SNP_VAE:
     
