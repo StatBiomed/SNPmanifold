@@ -2305,7 +2305,7 @@ def heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fon
     cmap = cmap_heatmap 
     cmap.set_bad(bad_color)
     
-    AF_sorted_filtered = np.empty((len(SNP_name), self.cell_total))
+    AF_sorted_filtered = np.empty((SNP_no, self.cell_total))
     
     if self.is_VCF == True:
             
