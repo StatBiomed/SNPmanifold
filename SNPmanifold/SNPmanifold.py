@@ -213,7 +213,7 @@ class SNP_VAE:
         Parameters
         ----------
         SNP_no: integer
-            number of top-ranked SNPs to be visualized in heatmap
+            number of top-ranked SNPs to be visualized in heatmap (default: 50)
 
         dpi: float
             dpi resolution for figures
@@ -298,8 +298,8 @@ class SNP_VAE:
         cluster_order: list
             list of clusters to visualize
 
-        SNP_no: integer
-            number of top-ranked SNPs to be visualized in heatmap
+        SNP_no: integer 
+            number of top-ranked SNPs to be visualized in heatmap (default: 50)
 
         dpi: float
             dpi resolution for figures
