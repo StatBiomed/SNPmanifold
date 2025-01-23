@@ -120,7 +120,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     
     while (cell_SNPread_filtered == 0).any():
         
-        what_to_do = float(input(f"{np.sum(cell_SNPread_filtered == 0)} cells have 0 observed SNPs, please determine a lower y-axis threshold or enter 'skip'.   "))
+        what_to_do = input(f"{np.sum(cell_SNPread_filtered == 0)} cells have 0 observed SNPs, please determine a lower y-axis threshold or enter 'skip'.   ")
 
         if what_to_do == 'skip':
 
@@ -129,7 +129,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         else:
 
-            SNP_logit_var_threshold = what_to_do
+            SNP_logit_var_threshold = float(what_to_do)
             SNP_logit_var_filter = SNP_logit_var > SNP_logit_var_threshold
             SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
             cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
