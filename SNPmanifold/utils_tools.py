@@ -43,7 +43,7 @@ def moving_average(a, n):
     return ret[n-1: ] / n
 
 
-def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only, num_neighbour):
+def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only, num_neighbour, what_to_do):
     
     """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -67,6 +67,9 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         num_neighbour: integer
             for missing_value = neighbour only, number of neighbouring cells for imputation
+
+        what_to_do: string
+            what to do for cells with 0 oberserved SNPs after filtering
     """
     
     print("Start filtering low-quality cells and SNPs.")
@@ -119,11 +122,14 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
     
     while (cell_SNPread_filtered == 0).any():
+
+        if what_to_do == None:
         
-        what_to_do = input(f"{np.sum(cell_SNPread_filtered == 0)} cells have 0 observed SNPs, please determine a lower y-axis threshold or enter 'skip'.   ")
+            what_to_do = input(f"{np.sum(cell_SNPread_filtered == 0)} cells have 0 observed SNPs, please determine a lower y-axis threshold or enter 'skip'.   ")
 
         if what_to_do == 'skip':
 
+            print(f"{np.sum(cell_SNPread_filtered == 0)} cells have 0 observed SNPs will be skipped.")
             cell_filter[np.where(cell_filter == True)[0][cell_SNPread_filtered == 0]] = False
             cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
 
