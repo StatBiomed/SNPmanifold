@@ -124,7 +124,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         if what_to_do == 'skip':
 
-            cell_filter[np.where(cell_SNPread_filtered == 0)[0]] = False
+            cell_filter[np.where(cell_filter == True)[0][cell_SNPread_filtered == 0]] = False
             cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
 
         else:
