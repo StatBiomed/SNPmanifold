@@ -84,7 +84,7 @@ class SNP_VAE:
         
         filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only, num_neighbour, what_to_do)
         
-    def training(self, num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0, num_batch = 5):
+    def training(self, num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0, num_batch = 5, is_cuda = True):
         
         """
         Train VAE using Adam optimizer and visualize latent space using PCA and UMAP
@@ -105,6 +105,9 @@ class SNP_VAE:
 
         num_batch: integer
             number of batchs for training VAE (default: 5)
+
+        is_cuda: boolean
+            Set True if you want to use CUDA, set False if you want to use CPU (default: True)
 
         """
         
