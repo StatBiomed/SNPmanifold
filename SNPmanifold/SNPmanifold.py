@@ -111,7 +111,7 @@ class SNP_VAE:
 
         """
         
-        train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch)
+        train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch, is_cuda)
         
     def retrain_umap(self):
         
