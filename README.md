@@ -10,7 +10,7 @@ Quick install can be achieved via pip (python 3.8 needed)
 
 ```bash
 # for published version
-pip install -U SNPmanifold
+pip install -U SNPmanifold==0.0.8
 
 # or developing version
 pip install -U git+https://github.com/StatBiomed/SNPmanifold
