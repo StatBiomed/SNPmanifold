@@ -6,6 +6,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import scanpy as sc
+from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
 import scipy.stats as stats
@@ -1652,7 +1653,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
 
     pos = nx.spring_layout(graph, iterations = 3000, weight = 'weight')
 
-    plt.figure(figsize = (26, 14)) 
+    plt.figure(figsize = (12, 10)) 
     nx.draw(graph, pos, with_labels = True, font_weight = 'bold', node_size = cluster_size[connect_order], node_color = self.colors[connect_order])
     nx.draw_networkx_edge_labels(graph, pos, nx.get_edge_attributes(graph, 'length'), rotate = False, alpha = 0.75)
     
