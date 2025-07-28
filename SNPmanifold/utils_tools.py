@@ -1844,7 +1844,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     self.SNP_cluster_AF_filtered_missing_to_zero_max_ranked = SNP_cluster_AF_filtered_missing_to_zero_max_ranked
     
     
-def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking):
+def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking, tree_fig_size):
     
     """
     Re-display figures shown in phylogeny with higher dpi, different number of SNPs, color and fontsizes
@@ -1874,6 +1874,9 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
 
     SNP_ranking: string
         method for ranking SNPs, 'variance' or 'AF_diff'
+
+    tree_fig_size: tuple of numbers with length 2
+            figure size of phylogenetic tree
     
     """
     
@@ -2036,7 +2039,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
 
     pos = nx.spring_layout(graph, iterations = 3000, weight = 'weight')
 
-    plt.figure(figsize = (26, 14), dpi = dpi) 
+    plt.figure(figsize = tree_fig_size, dpi = dpi) 
     nx.draw(graph, pos, with_labels = True, font_weight = 'bold', node_size = self.cluster_size[self.connect_order], node_color = self.colors[self.connect_order])
     nx.draw_networkx_edge_labels(graph, pos, nx.get_edge_attributes(graph, 'length'), rotate = False, alpha = 0.75)
     
