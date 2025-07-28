@@ -1561,6 +1561,28 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     self.assigned_label = assigned_label
     self.clusters = clusters
     self.colors = colors
+
+    print(f"Phylogenetic tree in latent space will be shown below.")
+
+    centre_latent = np.empty((cluster_no, self.z_dim))
+
+    for w in range(cluster_no):
+    
+        centre_latent[w, :] = np.mean(self.latent[clusters[w], :], 0)
+    
+    bifur_tree = linkage(centre_latent, method='average')
+
+    fig, axs = plt.subplots(1, 1, figsize=(10, (cluster_no * 0.5)))
+
+    dendrogram(bifur_tree, orientation='left', labels = np.arange(cluster_no).astype(int), distance_sort='descending', show_leaf_counts=True, leaf_font_size = 15)
+
+    axs.set_title('Hierarchical clustering dendrogram', fontsize = 15)
+    axs.set_xticks([])
+    axs.set_ylabel('Clusters', fontsize = 15)
+    plt.show()
+
+    self.centre_latent = centre_latent
+    self.bifur_tree = bifur_tree
     
     cluster_size = []
 
@@ -1625,8 +1647,6 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         centre_2d.append(list(np.mean(self.embedding_2d[clusters[w], :], 0)))
     
     centre_2d = np.array(centre_2d)
-
-    print(f"Phylogenetic tree in latent space will be shown below.")
     
     fig, axs = plt.subplots(1, 1)
     fig.set_size_inches(6, 5)
@@ -2014,6 +2034,15 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
         plt.show()
 
     print(f"Phylogenetic tree in latent space will be shown below.")
+
+    fig, axs = plt.subplots(1, 1, figsize=(10, (self.cluster_no * 0.5)), dpi = dpi)
+
+    dendrogram(self.bifur_tree, orientation='left', labels = np.arange(self.cluster_no).astype(int), distance_sort='descending', show_leaf_counts=True, leaf_font_size = 15)
+
+    axs.set_title('Hierarchical clustering dendrogram', fontsize = 15)
+    axs.set_xticks([])
+    axs.set_ylabel('Clusters', fontsize = 15)
+    plt.show()
     
     fig, axs = plt.subplots(1, 1, dpi = dpi)
     fig.set_size_inches(6, 5)
