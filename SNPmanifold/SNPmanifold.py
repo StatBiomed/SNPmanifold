@@ -210,7 +210,7 @@ class SNP_VAE:
         
         summary_clustering(self, dpi)
         
-    def phylogeny_summary(self, SNP_no = None, dpi = mpl.rcParams['figure.dpi'], bad_color = "blue", fontsize_c = None, fontsize_x = None, fontsize_y = None, cmap_heatmap = mpl.colormaps['rocket'], SNP_ranking = 'AF_diff'):
+    def phylogeny_summary(self, SNP_no = None, dpi = mpl.rcParams['figure.dpi'], bad_color = "blue", fontsize_c = None, fontsize_x = None, fontsize_y = None, cmap_heatmap = mpl.colormaps['rocket'], SNP_ranking = 'AF_diff', tree_fig_size = (12, 10)):
         
         """
         Re-display figures shown in phylogeny with higher dpi, different number of SNPs, color and fontsizes
@@ -241,9 +241,12 @@ class SNP_VAE:
         SNP_ranking: string
             method for ranking SNPs, 'variance' or 'AF_diff' (default: 'AF_diff')
 
+        tree_fig_size: tuple of numbers with length 2
+            figure size of phylogenetic tree (default: (12, 10))
+
         """
         
-        summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking)
+        summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking, tree_fig_size)
         
     def AF_scatter(self, SNP_name, dpi = mpl.rcParams['figure.dpi']):
     
@@ -289,6 +292,7 @@ class SNP_VAE:
 
         cmap_heatmap:
             colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
+            
         """
 
         heatmap_SNP(self, SNP_name, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap)
@@ -326,6 +330,7 @@ class SNP_VAE:
 
         SNP_ranking: string
             method for ranking SNPs, 'variance' or 'AF_diff' (default: 'AF_diff')
+            
         """
 
         heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking)
