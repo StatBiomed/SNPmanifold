@@ -139,7 +139,7 @@ class SNP_VAE:
 
         latent_clustering(self, algorithm, max_cluster, resolution)
         
-    def phylogeny(self, cluster_no = 2, pair_no = 100, SNP_no = 50, bad_color = "blue", cmap_heatmap = mpl.colormaps['rocket'], SNP_ranking = 'AF_diff'):
+    def phylogeny(self, cluster_no = None, pair_no = 100, SNP_no = 50, bad_color = "blue", cmap_heatmap = mpl.colormaps['rocket'], SNP_ranking = 'AF_diff'):
         
         """
         Construct phylogenetic tree of cells in full-dimensional latent space and rank SNPs according to p-values
@@ -147,7 +147,7 @@ class SNP_VAE:
         Parameters
         ----------
         cluster_no: integer
-            for k-means clustering only, number of clusters for phylogenetic tree construction and ranking of SNPs (default: 2)
+            for k-means clustering only, number of clusters for phylogenetic tree construction and ranking of SNPs (default: None)
 
         pair_no: integer
             number of pair of cells to consider between each pair of clusters when constructing phylogenetic tree (default: 100)
@@ -162,7 +162,7 @@ class SNP_VAE:
             colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
 
         SNP_ranking: string
-            method for ranking SNPs, 'variance' or 'AF_diff'
+            method for ranking SNPs, 'variance' or 'AF_diff' (default: 'AF_diff')
 
         """
         
