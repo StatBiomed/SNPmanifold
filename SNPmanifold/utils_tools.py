@@ -1414,6 +1414,10 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     print("PCA and UMAP of individual clusters will be shown below.")
     
     if self.algorithm == "kmeans_umap3d" or self.algorithm == "kmeans_full":
+
+        if cluster_no == None:
+
+            cluster_no = np.argmax(self.scores) + 2
     
         assigned_label = self.labels[cluster_no - 2]
         
