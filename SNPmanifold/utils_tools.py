@@ -1459,80 +1459,142 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         axs[1].scatter(self.embedding_2d[clusters[g], 0], self.embedding_2d[clusters[g], 1], s = 5, color = colors[g])
 
     plt.show()
-    
-    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
-    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
-    fig.suptitle("Scatter plot of PCA")
-    
-    for m in range(cluster_no):
-        
-        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
-        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
-        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = colors[m])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_xlim(self.xlim_pc)
-        axs[int(np.floor(m / 5)), int(m % 5)].set_ylim(self.ylim_pc)
 
-    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
+    if cluster_no <= 5:
 
-        fig.delaxes(axs[-1, - m - 1])
+        fig, axs = plt.subplots(1, cluster_no)
+        fig.set_size_inches(6 * cluster_no, 5)
+        fig.suptitle("Scatter plot of PCA")
         
-    plt.show()
+        for m in range(cluster_no):
+            
+            axs[m].set_title("Cluster " + str(m))
+            axs[m].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
+            axs[m].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = colors[m])
+            axs[m].set_xticks([])
+            axs[m].set_yticks([])
+            axs[m].set_xlim(self.xlim_pc)
+            axs[m].set_ylim(self.ylim_pc)
+            
+        plt.show()
+        
+        fig, axs = plt.subplots(1, cluster_no)
+        fig.set_size_inches(6 * cluster_no, 5)
+        fig.suptitle("Scatter plot of UMAP")
+        
+        for m in range(cluster_no):
+            
+            axs[m].set_title("Cluster " + str(m))
+            axs[m].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
+            axs[m].scatter(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], s = 5, color = colors[m])
+            axs[m].set_xticks([])
+            axs[m].set_yticks([])
+            axs[m].set_xlim(self.xlim_embedding_2d)
+            axs[m].set_ylim(self.ylim_embedding_2d)
+            
+        plt.show()
+        
+        fig, axs = plt.subplots(1, cluster_no)
+        fig.set_size_inches(6 * cluster_no, 5)
+        fig.suptitle("Density plot of PCA")
+        
+        for m in range(cluster_no):
+            
+            axs[m].set_title("Cluster " + str(m))
+            axs[m].hist2d(self.pc[clusters[m], 0], self.pc[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
+            axs[m].set_xticks([])
+            axs[m].set_yticks([])
+            
+        plt.show()
+        
+        fig, axs = plt.subplots(1, cluster_no)
+        fig.set_size_inches(6 * cluster_no, 5)
+        fig.suptitle("Density plot of UMAP")
+        
+        for m in range(cluster_no):
+            
+            axs[m].set_title("Cluster " + str(m))
+            axs[m].hist2d(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
+            axs[m].set_xticks([])
+            axs[m].set_yticks([])
+            
+        plt.show()
+
+    elif cluster_no > 5:
+
+        fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+        fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
+        fig.suptitle("Scatter plot of PCA")
+        
+        for m in range(cluster_no):
+            
+            axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+            axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[:, 0], self.pc[:, 1], s = 5, color = 'black')
+            axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.pc[clusters[m], 0], self.pc[clusters[m], 1], s = 5, color = colors[m])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_xlim(self.xlim_pc)
+            axs[int(np.floor(m / 5)), int(m % 5)].set_ylim(self.ylim_pc)
     
-    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
-    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
-    fig.suptitle("Scatter plot of UMAP")
+        for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
     
-    for m in range(cluster_no):
+            fig.delaxes(axs[-1, - m - 1])
+            
+        plt.show()
         
-        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
-        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
-        axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], s = 5, color = colors[m])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_xlim(self.xlim_embedding_2d)
-        axs[int(np.floor(m / 5)), int(m % 5)].set_ylim(self.ylim_embedding_2d)
-
-    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
-
-        fig.delaxes(axs[-1, - m - 1])
+        fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+        fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
+        fig.suptitle("Scatter plot of UMAP")
         
-    plt.show()
+        for m in range(cluster_no):
+            
+            axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+            axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.embedding_2d[:, 0], self.embedding_2d[:, 1], s = 5, color = 'black')
+            axs[int(np.floor(m / 5)), int(m % 5)].scatter(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], s = 5, color = colors[m])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_xlim(self.xlim_embedding_2d)
+            axs[int(np.floor(m / 5)), int(m % 5)].set_ylim(self.ylim_embedding_2d)
     
-    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
-    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
-    fig.suptitle("Density plot of PCA")
+        for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
     
-    for m in range(cluster_no):
+            fig.delaxes(axs[-1, - m - 1])
+            
+        plt.show()
         
-        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
-        axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.pc[clusters[m], 0], self.pc[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
-        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
-
-    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
-
-        fig.delaxes(axs[-1, - m - 1])
+        fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+        fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
+        fig.suptitle("Density plot of PCA")
         
-    plt.show()
+        for m in range(cluster_no):
+            
+            axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+            axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.pc[clusters[m], 0], self.pc[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_pc, self.ylim_pc]), vmin = self.vmin_pc, vmax = self.vmax_pc)
+            axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
     
-    fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
-    fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
-    fig.suptitle("Density plot of UMAP")
+        for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
     
-    for m in range(cluster_no):
+            fig.delaxes(axs[-1, - m - 1])
+            
+        plt.show()
         
-        axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
-        axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
-        axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
-        axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
-
-    for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
-
-        fig.delaxes(axs[-1, - m - 1])
+        fig, axs = plt.subplots(int(np.ceil(cluster_no / 5)), 5)
+        fig.set_size_inches(6 * 5, 5 * int(np.ceil(cluster_no / 5)))
+        fig.suptitle("Density plot of UMAP")
         
-    plt.show()
+        for m in range(cluster_no):
+            
+            axs[int(np.floor(m / 5)), int(m % 5)].set_title("Cluster " + str(m))
+            axs[int(np.floor(m / 5)), int(m % 5)].hist2d(self.embedding_2d[clusters[m], 0], self.embedding_2d[clusters[m], 1], bins = (200, 200), cmap = plt.cm.jet, range = np.array([self.xlim_embedding_2d, self.ylim_embedding_2d]), vmin = self.vmin_embedding_2d, vmax = self.vmax_embedding_2d)
+            axs[int(np.floor(m / 5)), int(m % 5)].set_xticks([])
+            axs[int(np.floor(m / 5)), int(m % 5)].set_yticks([])
+    
+        for m in range(int(np.ceil(cluster_no / 5) * 5) - cluster_no):
+    
+            fig.delaxes(axs[-1, - m - 1])
+            
+        plt.show()
     
     if self.z_dim >= 3:
     
