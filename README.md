@@ -48,3 +48,6 @@ from SNPmanifold import SNP_VAE
   mitochondrial SNPs.
 
 * See how to use it via the [API page](https://snpmanifold.readthedocs.io/en/latest/API.html#main-object).
+
+## Citation
+Chung, H., Huang, Y. SNPmanifold: detecting single-cell clonality and lineages from single-nucleotide variants using binomial variational autoencoder. Genome Biol 26, 309 (2025). https://doi.org/10.1186/s13059-025-03803-3
