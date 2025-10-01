@@ -59,7 +59,7 @@ If you have any questions regarding SNPmanifold, you can email Kevin Chung direc
 
    The general rationale is that cell_SNPread_threshold is high enough to filter cells with abnormally low sequencing depths, SNP_DPmean_threshold is high enough to filter SNPs with unreliable allele frequency due to low sequencing depths, and SNP_logit_var_threshold is high enough to filter SNPs that have meaninglessly low variance in allele frequency.
 
-2. How to match input cells (or SNPs) before filtering and filtered cells (or SNPs) in SNPmanifold?
+2. How to match input cells (or SNPs) before filtering and after filtering in SNPmanifold?
 
    You can use attribute cell_filter (or SNP_filter) where unfiltered_cells[cell_filter] = filtered_cells.
 
