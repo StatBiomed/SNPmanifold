@@ -61,7 +61,7 @@ If you have any questions regarding SNPmanifold, you can email Kevin Chung direc
 
 2. How to match input cells (or SNPs) before filtering and after filtering in SNPmanifold?
 
-   You can use attribute cell_filter (or SNP_filter) where unfiltered_cells[cell_filter] = filtered_cells.
+   You can use attribute cell_filter (or SNP_filter) where unfiltered_cellbarcode[cell_filter] = filtered_cellbarcode.
 
 4. How to re-display figures in higher dpi?
 
