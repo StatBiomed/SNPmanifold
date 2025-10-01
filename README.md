@@ -53,7 +53,7 @@ from SNPmanifold import SNP_VAE
 
 1. How to choose the filtering criteria for high-quality cells and SNPs?
 
-   The motivation of filtering is to reduce the amount of noisy low-quality cells and SNPs so that the resulting embedding is cleaner. The
+   The motivation of filtering is to reduce the amount of noisy low-quality cells and SNPs so that the resulting embedding is cleaner. The rationale is that cell_SNPread_threshold is high enough to filter cells with abnormally low sequencing depths, SNP_DPmean_threshold is high enough to filter SNPs with unreliable allele frequency due to low sequencing depths, and SNP_logit_var_threshold is high enough to filter SNPs that have extremely low variance in allele frequency. Ideally the final matrix contains only tens to hundreds of SNPs for a clearer pattern.
 
 2. How to re-display figures in higher dpi?
 
@@ -61,7 +61,7 @@ from SNPmanifold import SNP_VAE
 
 3. What to do when the embedding of SNPmanifold fails to converge during training?
 
-   You can tune hyperparameters of the optimizer to fix the problem.
+   You can tune default hyperparameters of the optimizer in training(num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0) to fix the problem.
 
 ## Citation
 Chung, H., Huang, Y. SNPmanifold: detecting single-cell clonality and lineages from single-nucleotide variants using binomial variational autoencoder. Genome Biol 26, 309 (2025). https://doi.org/10.1186/s13059-025-03803-3
