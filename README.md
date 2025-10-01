@@ -49,5 +49,19 @@ from SNPmanifold import SNP_VAE
 
 * See how to use it via the [API page](https://snpmanifold.readthedocs.io/en/latest/API.html#main-object).
 
+## FAQ
+
+1. How to choose the filtering criteria for high-quality cells and SNPs?
+
+   The motivation of filtering is to reduce the amount of noisy low-quality cells and SNPs so that the resulting embedding is cleaner. The
+
+2. How to re-display figures in higher dpi?
+
+   You can use functions filtering_summary(dpi = 300), training_summary(dpi = 300), clustering_summary(dpi = 300), phylogeny_summary(dpi = 300).
+
+3. What to do when the embedding of SNPmanifold fails to converge during training?
+
+   You can tune hyperparameters of the optimizer to fix the problem.
+
 ## Citation
 Chung, H., Huang, Y. SNPmanifold: detecting single-cell clonality and lineages from single-nucleotide variants using binomial variational autoencoder. Genome Biol 26, 309 (2025). https://doi.org/10.1186/s13059-025-03803-3
