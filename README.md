@@ -51,7 +51,7 @@ from SNPmanifold import SNP_VAE
 
 ## FAQ
 
-If you have any issues regarding SNPmanifold, you can email me at u3570318@connect.hku.hk .
+If you have any issues regarding SNPmanifold, you can email me at u3570318@connect.hku.hk.
 
 1. How to choose the filtering criteria for high-quality cells and SNPs?
 
