@@ -26,7 +26,7 @@ conda activate $myenv
 pip install -U git+https://github.com/StatBiomed/SNPmanifold
 ```
 
-## Quick Usage
+## Quick usage
 
 Full documentation is at https://SNPmanifold.readthedocs.io. 
 
