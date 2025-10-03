@@ -49,6 +49,10 @@ from SNPmanifold import SNP_VAE
 
 * See how to use it via the [API page](https://snpmanifold.readthedocs.io/en/latest/API.html#main-object).
 
+## Testing feature
+
+The default configuration for SNPmanifold now is SNP_VAE(SNPread = "normalized", missing_value = 0.5, UMI_correction = None), which works well for distinct single-cell germline mutations. We are now actively exploring an alternative configuration SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = 'positive') which seems to work better in single-cell somatic mutation of tumor and spatial transcriptomics. You may want to use this alternative configuration if you are exploring these types of data.
+
 ## FAQ
 
 If you have any questions regarding SNPmanifold, you can email Kevin Chung directly. u3570318@connect.hku.hk
