@@ -63,11 +63,15 @@ If you have any questions regarding SNPmanifold, you can email Kevin Chung direc
 
    You can use attribute cell_filter (or SNP_filter) where unfiltered_cellbarcode[cell_filter] = filtered_cellbarcode.
 
-4. How to re-display figures in higher dpi?
+3. Where to find cell barcode after using cellsnp-lite?
+
+   Cell barcode can be found in cellSNP.samples.tsv in the output folder of cellsnp-lite.
+
+5. How to re-display figures in higher dpi?
 
    You can use functions filtering_summary(dpi = 300), training_summary(dpi = 300), clustering_summary(dpi = 300), phylogeny_summary(dpi = 300).
 
-5. What to do when the embedding of SNPmanifold fails to converge during training?
+6. What to do when the embedding of SNPmanifold fails to converge during training?
 
    You can tune default hyperparameters of the optimizer in training(num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0) to fix the problem. Alternatively, you may consider setting more strigenet filtering criteria for cells and SNPs.
 
