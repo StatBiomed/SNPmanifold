@@ -63,9 +63,9 @@ If you have any questions regarding SNPmanifold, you can email Kevin Chung direc
 
    You can use attribute cell_filter (or SNP_filter) where unfiltered_cellbarcode[cell_filter] = filtered_cellbarcode.
 
-3. Where to find cell barcode after using cellsnp-lite?
+3. Where to find cell barcodes after using cellsnp-lite?
 
-   Cell barcode can be found in cellSNP.samples.tsv in the output folder of cellsnp-lite.
+   Cell barcodes can be found in cellSNP.samples.tsv in the output folder of cellsnp-lite.
 
 5. How to re-display figures in higher dpi?
 
