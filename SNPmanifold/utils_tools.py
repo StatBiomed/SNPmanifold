@@ -143,7 +143,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
     if self.is_VCF == True:
 
-        self.VCF_raw["TEXT"] = "chr:" + self.VCF_raw["CHROM"].astype(str) + ", " + self.VCF_raw["POS"].astype(str) + self.VCF_raw["REF"] + ">" + self.VCF_raw["ALT"]
+        self.VCF_raw["TEXT"] = self.VCF_raw["CHROM"].astype(str) + ":" + self.VCF_raw["POS"].astype(str) + self.VCF_raw["REF"] + ">" + self.VCF_raw["ALT"]
     
         for j in range(self.VCF_raw.shape[0]):
 
