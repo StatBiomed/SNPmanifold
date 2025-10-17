@@ -364,7 +364,8 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         del self.AD_raw
         del self.DP_raw
         del self.AF_raw_missing_to_mean
-    
+
+    self.SNP_filtering = SNP_filtering
     self.cell_SNPread = cell_SNPread
     self.cell_SNPread_threshold = cell_SNPread_threshold
     self.cell_filter = cell_filter
@@ -384,7 +385,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         self.SNP_VMR = SNP_VMR
         self.SNP_VMR_threshold = SNP_VMR_threshold
         self.SNP_VMR_filter = SNP_VMR_filter
-    
+
     self.SNP_filter = SNP_filter
     self.cell_SNPread_filtered = cell_SNPread_filtered
     self.SNP_total = SNP_total
@@ -451,15 +452,27 @@ def summary_filtering(self, dpi):
     plt.xlabel("SNP")
     plt.axhline(y = self.SNP_DPmean_threshold, color = 'r', linestyle = '-')
     plt.show()
+
+    if self.SNP_filtering == 'logit-variance':
     
-    plt.figure(figsize = (10, 7), dpi = dpi)
-    plt.title("SNPs sorted by logit-variance")
-    plt.plot(np.arange(np.sum(self.SNP_DPmean_filter)) + 1, np.flip(np.sort((self.SNP_logit_var[self.SNP_DPmean_filter]))))
-    plt.ylabel("Logit-variance of SNP")
-    plt.xlabel("SNP")
-    plt.axhline(y = self.SNP_logit_var_threshold, color = 'r', linestyle = '-')
-    plt.show()
-    
+        plt.figure(figsize = (10, 7), dpi = dpi)
+        plt.title("SNPs sorted by logit-variance")
+        plt.plot(np.arange(np.sum(self.SNP_DPmean_filter)) + 1, np.flip(np.sort((self.SNP_logit_var[self.SNP_DPmean_filter]))))
+        plt.ylabel("Logit-variance of SNP")
+        plt.xlabel("SNP")
+        plt.axhline(y = self.SNP_logit_var_threshold, color = 'r', linestyle = '-')
+        plt.show()
+
+    elif self.SNP_filtering == 'VMR':
+
+        plt.figure(figsize = (10, 7), dpi = dpi)
+        plt.title("SNPs sorted by variance-mean ratio")
+        plt.plot(np.arange(np.sum(self.SNP_DPmean_filter)) + 1, np.flip(np.sort(self.SNP_VMR[self.SNP_DPmean_filter])))
+        plt.ylabel("Variance-mean ratio of SNP")
+        plt.xlabel("SNP")
+        plt.axhline(y = self.SNP_VMR_threshold, color = 'r', linestyle = '-')
+        plt.show()
+
     
 def train_VAE(self, num_epoch, stepsize, z_dim, beta, num_batch, is_cuda):
     
