@@ -359,9 +359,19 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     self.SNP_DPmean = SNP_DPmean
     self.SNP_DPmean_threshold = SNP_DPmean_threshold
     self.SNP_DPmean_filter = SNP_DPmean_filter
-    self.SNP_logit_var = SNP_logit_var
-    self.SNP_logit_var_threshold = SNP_logit_var_threshold
-    self.SNP_logit_var_filter = SNP_logit_var_filter
+
+    if SNP_filtering == 'logit-variance':
+    
+        self.SNP_logit_var = SNP_logit_var
+        self.SNP_logit_var_threshold = SNP_logit_var_threshold
+        self.SNP_logit_var_filter = SNP_logit_var_filter
+
+    elif SNP_filtering == 'VMR':
+
+        self.SNP_VMR = SNP_VMR
+        self.SNP_VMR_threshold = SNP_VMR_threshold
+        self.SNP_VMR_filter = SNP_VMR_filter
+    
     self.SNP_filter = SNP_filter
     self.cell_SNPread_filtered = cell_SNPread_filtered
     self.SNP_total = SNP_total
