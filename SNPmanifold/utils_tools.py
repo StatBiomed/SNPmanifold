@@ -44,7 +44,7 @@ def moving_average(a, n):
     return ret[n-1: ] / n
 
 
-def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only, num_neighbour, what_to_do):
+def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, SNP_VMR_threshold, filtering_only, num_neighbour, what_to_do, SNP_filtering, UMI_correction_before_filtering):
     
     """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -63,6 +63,9 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         SNP_logit_var_threshold: float
             minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None
 
+        SNP_VMR_threshold: float
+            minimal variance-mean ratio for a SNP to be included for analysis, input after showing the plot if None
+
         filtering_only: boolean
             if True, it does not process AF matrices which are required for subsequent analyses in order to speed up
 
@@ -71,6 +74,12 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         what_to_do: string
             what to do for cells with 0 oberserved SNPs after filtering
+
+        SNP_filtering: string
+            'logit-variance' or variance-mean ratio 'VMR' 
+
+        UMI_correction_before_filtering: boolean
+            for UMI_correction = positive only, if True, add pseudocounts to AD and DP matrices before the last SNP filtering
     """
     
     print("Start filtering low-quality cells and SNPs.")
