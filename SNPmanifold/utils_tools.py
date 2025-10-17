@@ -114,22 +114,28 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         
     SNP_DPmean_filter = SNP_DPmean > SNP_DPmean_threshold
     
-    SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
+    if SNP_filtering == 'logit-variance':
     
-    plt.figure(figsize = (10, 7))
-    plt.title("SNPs sorted by logit-variance")
-    plt.plot(np.arange(np.sum(SNP_DPmean_filter)) + 1, np.flip(np.sort((SNP_logit_var[SNP_DPmean_filter]))))
-    plt.ylabel("Logit-variance of SNP")
-    plt.xlabel("SNP")
-    plt.show()
-
-    if SNP_logit_var_threshold == None:
-    
-        SNP_logit_var_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low logit-variance.   "))
+        SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
         
-    SNP_logit_var_filter = SNP_logit_var > SNP_logit_var_threshold
-    SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
-    cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
+        plt.figure(figsize = (10, 7))
+        plt.title("SNPs sorted by logit-variance")
+        plt.plot(np.arange(np.sum(SNP_DPmean_filter)) + 1, np.flip(np.sort((SNP_logit_var[SNP_DPmean_filter]))))
+        plt.ylabel("Logit-variance of SNP")
+        plt.xlabel("SNP")
+        plt.show()
+    
+        if SNP_logit_var_threshold == None:
+        
+            SNP_logit_var_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low logit-variance.   "))
+            
+        SNP_logit_var_filter = SNP_logit_var > SNP_logit_var_threshold
+        SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
+        cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
+
+    elif SNP_filtering == 'VMR':
+
+        
     
     while (cell_SNPread_filtered == 0).any():
 
@@ -145,10 +151,19 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         else:
 
-            SNP_logit_var_threshold = float(what_to_do)
-            SNP_logit_var_filter = SNP_logit_var > SNP_logit_var_threshold
-            SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
-            cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
+            if SNP_filtering == 'logit-variance':
+            
+                SNP_logit_var_threshold = float(what_to_do)
+                SNP_logit_var_filter = SNP_logit_var > SNP_logit_var_threshold
+                SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_logit_var_filter)
+                cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
+
+            elif SNP_filtering == 'VMR':
+
+                SNP_VMR_threshold = float(what_to_do)
+                SNP_VMR_filter = SNP_VMR > SNP_VMR_threshold
+                SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_VMR_filter)
+                cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
 
     if self.is_VCF == True:
 
