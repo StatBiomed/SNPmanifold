@@ -135,7 +135,26 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
     elif SNP_filtering == 'VMR':
 
+        AF_mean_bulk = np.sum(self.AD_raw, 0) / np.sum(self.DP_raw, 0)
+        AF_abs_mean_bulk = 0.5 - np.abs(AF_mean_bulk - 0.5)
+
+        SNP_var = torch.var(self.AF_raw_missing_to_mean[cell_filter, :], 0).cpu().numpy()
+        SNP_VMR = SNP_var / (AF_abs_mean_bulk + 0.01)
+
+        plt.figure(figsize = (10, 7))
+        plt.title("SNPs sorted by variance-mean ratio")
+        plt.plot(np.arange(np.sum(SNP_DPmean_filter)) + 1, np.flip(np.sort(SNP_VMR[SNP_DPmean_filter])))
+        plt.ylabel("Variance-mean ratio of SNP")
+        plt.xlabel("SNP")
+        plt.show()
+
+        if SNP_VMR_threshold == None:
         
+            SNP_VMR_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low variance-mean ratio.   "))
+            
+        SNP_VMR_filter = SNP_VMR > SNP_VMR_threshold
+        SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_VMR_filter)
+        cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
     
     while (cell_SNPread_filtered == 0).any():
 
