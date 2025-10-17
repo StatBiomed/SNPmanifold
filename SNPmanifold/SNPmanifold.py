@@ -72,6 +72,9 @@ class SNP_VAE:
         SNP_logit_var_threshold: float
             minimal logit-variance for a SNP to be included for analysis, input after showing the plot if None (default: None)
 
+        SNP_VMR_threshold: float
+            minimal variance-mean ratio for a SNP to be included for analysis, input after showing the plot if None (default: None)
+
         filtering_only: boolean
             if True, it does not process AF matrices which are required for subsequent analyses in order to speed up (default: False)
 
