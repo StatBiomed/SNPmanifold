@@ -118,7 +118,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
 
-            SNP_logit_var = torch.var(torch.logit((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2), eps = 0.01), 0).cpu().numpy()
+            SNP_logit_var = torch.var(torch.logit(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), eps = 0.01), 0).cpu().numpy()
 
         else:
     
@@ -146,7 +146,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
 
-            SNP_var = torch.var((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2), 0).cpu().numpy()
+            SNP_var = torch.var(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), 0).cpu().numpy()
 
         else:
         
