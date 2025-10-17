@@ -113,17 +113,17 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         SNP_DPmean_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low coverage.   "))
         
     SNP_DPmean_filter = SNP_DPmean > SNP_DPmean_threshold
+
+    if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
+
+        SNP_logit_var = torch.var(torch.logit(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), eps = 0.01), 0).cpu().numpy()
+
+    else:
     
+        SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
+
     if SNP_filtering == 'logit-variance':
 
-        if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
-
-            SNP_logit_var = torch.var(torch.logit(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), eps = 0.01), 0).cpu().numpy()
-
-        else:
-    
-            SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
-        
         plt.figure(figsize = (10, 7))
         plt.title("SNPs sorted by logit-variance")
         plt.plot(np.arange(np.sum(SNP_DPmean_filter)) + 1, np.flip(np.sort((SNP_logit_var[SNP_DPmean_filter]))))
@@ -374,9 +374,10 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     self.SNP_DPmean_threshold = SNP_DPmean_threshold
     self.SNP_DPmean_filter = SNP_DPmean_filter
 
+    self.SNP_logit_var = SNP_logit_var
+
     if SNP_filtering == 'logit-variance':
     
-        self.SNP_logit_var = SNP_logit_var
         self.SNP_logit_var_threshold = SNP_logit_var_threshold
         self.SNP_logit_var_filter = SNP_logit_var_filter
 
