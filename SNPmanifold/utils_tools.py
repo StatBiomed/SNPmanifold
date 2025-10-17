@@ -115,8 +115,14 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     SNP_DPmean_filter = SNP_DPmean > SNP_DPmean_threshold
     
     if SNP_filtering == 'logit-variance':
+
+        if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
+
+            SNP_logit_var = torch.var(torch.logit((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2), eps = 0.01), 0).cpu().numpy()
+
+        else:
     
-        SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
+            SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
         
         plt.figure(figsize = (10, 7))
         plt.title("SNPs sorted by logit-variance")
@@ -138,7 +144,14 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         AF_mean_bulk = np.sum(self.AD_raw, 0) / np.sum(self.DP_raw, 0)
         AF_abs_mean_bulk = 0.5 - np.abs(AF_mean_bulk - 0.5)
 
-        SNP_var = torch.var(self.AF_raw_missing_to_mean[cell_filter, :], 0).cpu().numpy()
+        if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
+
+            SNP_var = torch.var((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2), 0).cpu().numpy()
+
+        else:
+        
+            SNP_var = torch.var(self.AF_raw_missing_to_mean[cell_filter, :], 0).cpu().numpy()
+
         SNP_VMR = SNP_var / (AF_abs_mean_bulk + 0.01)
 
         plt.figure(figsize = (10, 7))
