@@ -85,7 +85,7 @@ class SNP_VAE:
             'logit-variance' or variance-mean ratio 'VMR' (default: 'VMR') 
 
         UMI_correction_before_filtering: boolean
-            for UMI_correction = positive only, if True, add pseudocounts to AD and DP matrices before filtering (default: False)
+            for UMI_correction = positive only, if True, add pseudocounts to AD and DP matrices before the last SNP filtering (default: False)
         """
         
         filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, filtering_only, num_neighbour, what_to_do, SNP_filtering, UMI_correction_before_filtering)
