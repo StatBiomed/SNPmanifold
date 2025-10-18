@@ -364,6 +364,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         del self.AD_raw
         del self.DP_raw
         del self.AF_raw_missing_to_mean
+        del self.AF_raw_missing_to_nan
 
     self.SNP_filtering = SNP_filtering
     self.cell_SNPread = cell_SNPread
