@@ -116,8 +116,8 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
     if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
 
-        AF_raw_positive_corrected = torch.tensor((AD_raw + 1) / (DP_raw + 2)).float()
-        AF_raw_positive_corrected[torch.isnan(AF_raw_missing_to_nan)] = torch.nan
+        AF_raw_positive_corrected = torch.tensor((self.AD_raw + 1) / (self.DP_raw + 2)).float()
+        AF_raw_positive_corrected[torch.isnan(self.AF_raw_missing_to_nan)] = torch.nan
         SNP_logit_var = np.nanvar(torch.logit(AF_raw_positive_corrected[cell_filter, :], eps = 0.01).cpu().numpy(), 0)
         
         # SNP_logit_var = torch.var(torch.logit(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), eps = 0.01), 0).cpu().numpy()
@@ -152,8 +152,8 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         if  UMI_correction_before_filtering == True and self.UMI_correction == 'positive':
 
-            AF_raw_positive_corrected = torch.tensor((AD_raw + 1) / (DP_raw + 2)).float()
-            AF_raw_positive_corrected[torch.isnan(AF_raw_missing_to_nan)] = torch.nan
+            AF_raw_positive_corrected = torch.tensor((self.AD_raw + 1) / (self.DP_raw + 2)).float()
+            AF_raw_positive_corrected[torch.isnan(self.AF_raw_missing_to_nan)] = torch.nan
             SNP_var = np.nanvar(AF_raw_positive_corrected[cell_filter, :].cpu().numpy(), 0)
 
             # SNP_var = torch.var(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), 0).cpu().numpy()
