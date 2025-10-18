@@ -106,11 +106,13 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
         
         warnings.filterwarnings("ignore", category = RuntimeWarning)
         AF_raw_missing_to_mean = AD_raw / DP_raw
+        AF_raw_missing_to_nan = AD_raw / DP_raw
         
     AF_mean = np.nanmean(AF_raw_missing_to_mean, 0)
     AF_mean[np.isnan(AF_mean)] = 0
     AF_raw_missing_to_mean[np.isnan(AF_raw_missing_to_mean)] = np.outer(np.ones(AF_raw_missing_to_mean.shape[0]), AF_mean)[np.isnan(AF_raw_missing_to_mean)]
     AF_raw_missing_to_mean = torch.tensor(AF_raw_missing_to_mean).float()
+    AF_raw_missing_to_nan = torch.tensor(AF_raw_missing_to_nan).float()
 
     if prior != None:
 
@@ -130,6 +132,7 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     self.DP_raw = DP_raw
     self.AF_mean = AF_mean
     self.AF_raw_missing_to_mean = AF_raw_missing_to_mean
+    self.AF_raw_missing_to_nan = AF_raw_missing_to_nan
     self.is_prior = is_prior
 
     print("Finish loading raw data.")
