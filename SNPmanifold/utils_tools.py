@@ -122,7 +122,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         
         # SNP_logit_var = torch.var(torch.logit(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), eps = 0.01), 0).cpu().numpy()
 
-         SNP_var_missing_to_mean = torch.var(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), 0).cpu().numpy()
+        SNP_var_missing_to_mean = torch.var(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), 0).cpu().numpy()
 
     else:
 
