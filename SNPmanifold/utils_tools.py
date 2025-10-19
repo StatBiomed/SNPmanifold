@@ -400,7 +400,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
     elif SNP_filtering == 'VMR':
 
-        self.SNP_var = self.SNP_var
+        self.SNP_var = SNP_var
         self.SNP_VMR = SNP_VMR
         self.SNP_VMR_threshold = SNP_VMR_threshold
         self.SNP_VMR_filter = SNP_VMR_filter
