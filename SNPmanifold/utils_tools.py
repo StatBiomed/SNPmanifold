@@ -1503,7 +1503,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         colormap used for heatmap visualization
 
     SNP_ranking: string
-        method for ranking SNPs, 'variance' or 'AF_diff'
+        method for ranking SNPs, 'variance_ratio' or 'variance_diff' or 'AF_diff'
 
     """
     
@@ -1900,7 +1900,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
 
     rank_SNP_AF_diff = np.flip(np.argsort(SNP_cluster_AF_filtered_missing_to_mean_diff))
 
-    if SNP_ranking == 'variance':
+    if SNP_ranking == 'variance_ratio':
 
         rank_SNP = rank_SNP_p_value
 
@@ -2058,7 +2058,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
         colormap used for heatmap visualization
 
     SNP_ranking: string
-        method for ranking SNPs, 'variance' or 'AF_diff'
+        method for ranking SNPs, 'variance_ratio' or 'variance_diff' or 'AF_diff'
 
     tree_fig_size: tuple of numbers with length 2
             figure size of phylogenetic tree
@@ -2311,7 +2311,7 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
     cmap = cmap_heatmap 
     cmap.set_bad(bad_color)
 
-    if SNP_ranking == 'variance':
+    if SNP_ranking == 'variance_ratio':
 
         AF_sorted = self.AF_filtered_missing_to_nan[self.cell_sorted, :][:, self.rank_SNP_p_value].T
     
@@ -2536,7 +2536,7 @@ def heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fon
             colormap used for heatmap visualization
 
         SNP_ranking: string
-            method for ranking SNPs, 'variance' or 'AF_diff'
+            method for ranking SNPs, 'variance_ratio' or 'variance_diff' or 'AF_diff'
         """
         
     cluster_size_specified = self.cluster_size[cluster_order]
@@ -2569,7 +2569,7 @@ def heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fon
     
     rank_SNP_AF_diff_specified = np.flip(np.argsort(SNP_cluster_specified_AF_filtered_missing_to_mean_diff))
     
-    if SNP_ranking == 'variance':
+    if SNP_ranking == 'variance_ratio':
     
         rank_SNP_specified = rank_SNP_p_value_specified
     
