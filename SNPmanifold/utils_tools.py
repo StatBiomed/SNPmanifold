@@ -1898,11 +1898,17 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         self.SNP_low_p_value = SNP_low_p_value
         self.rank_SNP_low_p_value = rank_SNP_low_p_value
 
+    rank_SNP_variance_diff = 
+
     rank_SNP_AF_diff = np.flip(np.argsort(SNP_cluster_AF_filtered_missing_to_mean_diff))
 
     if SNP_ranking == 'variance_ratio':
 
         rank_SNP = rank_SNP_p_value
+
+    elif SNP_ranking == 'variance_diff':
+
+        rank_SNP = rank_SNP_variance_diff
 
     elif SNP_ranking == 'AF_diff':
 
