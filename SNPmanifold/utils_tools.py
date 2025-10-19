@@ -128,6 +128,8 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         
         # SNP_logit_var = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
 
+    SNP_logit_var_original = torch.var(torch.logit(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), eps = 0.01), 0).cpu().numpy()
+
     if SNP_filtering == 'logit-variance':
 
         plt.figure(figsize = (10, 7))
@@ -388,6 +390,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
     self.SNP_DPmean_filter = SNP_DPmean_filter
 
     self.SNP_logit_var = SNP_logit_var
+    self.SNP_logit_var_original = SNP_logit_var_original
 
     if SNP_filtering == 'logit-variance':
     
@@ -1872,7 +1875,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     binomial_distance = nn.BCELoss(reduction = 'none')
     cluster_BCE = np.sum(binomial_distance(torch.tensor(np.outer(np.ones(cluster_no), self.AF_filtered_mean)), torch.tensor(SNP_cluster_AF_filtered_missing_to_mean)).cpu().numpy(), 1)
     
-    ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var[self.SNP_filter], 0.01, None)
+    ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
     f_stat = np.clip(1 / ratio_logit_var, 1.001, 20)
     df_bulk = self.cell_total - 1
     df_cluster = np.array(list(map(lambda x: cluster_size[x], np.argmin(SNP_cluster_logit_var, 0)))) - 1
@@ -2542,7 +2545,7 @@ def heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fon
     SNP_cluster_specified_AF_filtered_missing_to_mean = self.SNP_cluster_AF_filtered_missing_to_mean[cluster_order, :]
     SNP_cluster_specified_AF_filtered_missing_to_nan = self.SNP_cluster_AF_filtered_missing_to_nan[cluster_order, :]
     
-    ratio_logit_var_specified = np.clip(np.min(SNP_cluster_specified_logit_var, 0) / self.SNP_logit_var[self.SNP_filter], 0.01, None)
+    ratio_logit_var_specified = np.clip(np.min(SNP_cluster_specified_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
     f_stat_specified = np.clip(1 / ratio_logit_var_specified, 1.001, 20)
     df_bulk = self.cell_total - 1
     df_cluster_specified = np.array(list(map(lambda x: cluster_size_specified[x], np.argmin(SNP_cluster_specified_logit_var, 0)))) - 1
