@@ -157,14 +157,14 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             AF_raw_positive_corrected = torch.tensor((self.AD_raw + 1) / (self.DP_raw + 2)).float()
             AF_raw_positive_corrected[torch.isnan(self.AF_raw_missing_to_nan)] = torch.nan
             SNP_var = np.nanvar(AF_raw_positive_corrected[cell_filter, :].cpu().numpy(), 0)
-
-            # SNP_var = torch.var(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), 0).cpu().numpy()
+            
+            SNP_var_missing_to_mean = torch.var(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), 0).cpu().numpy()
 
         else:
 
             SNP_var = np.nanvar(self.AF_raw_missing_to_nan[cell_filter, :].cpu().numpy(), 0)
             
-            # SNP_var = torch.var(self.AF_raw_missing_to_mean[cell_filter, :], 0).cpu().numpy()
+            SNP_var_missing_to_mean = torch.var(self.AF_raw_missing_to_mean[cell_filter, :], 0).cpu().numpy()
 
         SNP_VMR = SNP_var / (AF_abs_mean_bulk + 0.01)
 
@@ -391,6 +391,8 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
     self.SNP_logit_var = SNP_logit_var
     self.SNP_logit_var_original = SNP_logit_var_original
+    self.SNP_var = self.SNP_var
+    self.SNP_var_missing_to_mean = self.SNP_var_missing_to_mean
 
     if SNP_filtering == 'logit-variance':
     
@@ -1857,6 +1859,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     SNP_no = np.min((self.SNP_total, SNP_no)).astype(int)
     
     SNP_cluster_logit_var = np.empty((cluster_no, self.SNP_total))
+    SNP_cluster_var = np.empty((cluster_no, self.SNP_total))
     SNP_cluster_AF_filtered_missing_to_zero = np.empty((cluster_no, self.SNP_total))
     SNP_cluster_AF_filtered_missing_to_mean = np.empty((cluster_no, self.SNP_total))
     SNP_cluster_AF_filtered_missing_to_nan = np.empty((cluster_no, self.SNP_total))
@@ -1865,6 +1868,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     for m in range(cluster_no):
         
         SNP_cluster_logit_var[m, :] = torch.var(torch.logit(self.AF_filtered_missing_to_mean[clusters[m], :], eps = 0.01), 0).cpu().numpy()
+        SNP_cluster_var[m, :] = torch.var(self.AF_filtered_missing_to_mean[clusters[m], :], 0).cpu().numpy()
         SNP_cluster_AF_filtered_missing_to_zero[m, :] = np.mean(self.AF_filtered_missing_to_zero.cpu().numpy()[clusters[m], :], 0)
         SNP_cluster_AF_filtered_missing_to_mean[m, :] = np.mean(self.AF_filtered_missing_to_mean.cpu().numpy()[clusters[m], :], 0)
         SNP_cluster_AF_filtered_missing_to_nan[m, :] = np.nanmean((self.AD_filtered / self.DP_filtered)[clusters[m], :], 0)
@@ -1875,13 +1879,16 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     binomial_distance = nn.BCELoss(reduction = 'none')
     cluster_BCE = np.sum(binomial_distance(torch.tensor(np.outer(np.ones(cluster_no), self.AF_filtered_mean)), torch.tensor(SNP_cluster_AF_filtered_missing_to_mean)).cpu().numpy(), 1)
     
-    # ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
+    # ratio_logit_var = np.clip(np.mean(SNP_cluster_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
 
-    ratio_logit_var = np.clip(np.mean(SNP_cluster_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
+    ratio_logit_var = np.clip(np.min(SNP_cluster_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
     f_stat = np.clip(1 / ratio_logit_var, 1.001, 20)
     df_bulk = self.cell_total - 1
     df_cluster = np.array(list(map(lambda x: cluster_size[x], np.argmin(SNP_cluster_logit_var, 0)))) - 1
     p_value = 1 - stats.f.cdf(f_stat, df_bulk, df_cluster)
+
+    SNP_cluster_var_diff = self.SNP_var_missing_to_mean[self.SNP_filter] - np.mean(SNP_cluster_var, 0)
+    
     SNP_cluster_AF_filtered_missing_to_zero_max = np.max(SNP_cluster_AF_filtered_missing_to_zero, 0)
     SNP_cluster_AF_filtered_missing_to_mean_diff = np.max(SNP_cluster_AF_filtered_missing_to_nan, 0) - np.min(SNP_cluster_AF_filtered_missing_to_nan, 0)
     
@@ -1898,7 +1905,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
         self.SNP_low_p_value = SNP_low_p_value
         self.rank_SNP_low_p_value = rank_SNP_low_p_value
 
-    rank_SNP_variance_diff = 
+    rank_SNP_var_diff = np.flip(np.argsort(SNP_cluster_var_diff))
 
     rank_SNP_AF_diff = np.flip(np.argsort(SNP_cluster_AF_filtered_missing_to_mean_diff))
 
@@ -1908,7 +1915,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
 
     elif SNP_ranking == 'variance_diff':
 
-        rank_SNP = rank_SNP_variance_diff
+        rank_SNP = rank_SNP_var_diff
 
     elif SNP_ranking == 'AF_diff':
 
@@ -2009,6 +2016,7 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     self.SNP_ranking = SNP_ranking
     self.SNP_no = SNP_no
     self.SNP_cluster_logit_var = SNP_cluster_logit_var
+    self.SNP_cluster_var = SNP_cluster_var
     self.SNP_cluster_AF_filtered_missing_to_zero = SNP_cluster_AF_filtered_missing_to_zero
     self.SNP_cluster_AF_filtered_missing_to_mean = SNP_cluster_AF_filtered_missing_to_mean
     self.SNP_cluster_AF_filtered_missing_to_nan = SNP_cluster_AF_filtered_missing_to_nan
@@ -2019,9 +2027,11 @@ def tree(self, cluster_no, pair_no, SNP_no, bad_color, cmap_heatmap, SNP_ranking
     self.df_bulk = df_bulk
     self.df_cluster = df_cluster
     self.p_value = p_value
+    self.SNP_cluster_var_diff = SNP_cluster_var_diff
     self.SNP_cluster_AF_filtered_missing_to_zero_max = SNP_cluster_AF_filtered_missing_to_zero_max
     self.SNP_cluster_AF_filtered_missing_to_mean_diff = SNP_cluster_AF_filtered_missing_to_mean_diff
     self.rank_SNP_p_value = rank_SNP_p_value
+    self.rank_SNP_var_diff = rank_SNP_var_diff
     self.rank_SNP_AF_diff = rank_SNP_AF_diff
     self.rank_SNP = rank_SNP
     self.SNP_low_p_value_total = SNP_low_p_value_total
@@ -2329,6 +2339,18 @@ def summary_phylogeny(self, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, font
             
             fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[self.rank_SNP_p_value][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
 
+    elif SNP_ranking == 'variance_diff':
+
+        AF_sorted = self.AF_filtered_missing_to_nan[self.cell_sorted, :][:, self.rank_SNP_var_diff].T
+    
+        if self.is_VCF == True:
+        
+            fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.VCF_filtered["TEXT"].to_numpy()[self.rank_SNP_var_diff][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+            
+        elif self.is_VCF == False:
+            
+            fig = sns.clustermap(pd.DataFrame(AF_sorted[:SNP_no, :], index = self.VCF_filtered[0].to_numpy()[self.rank_SNP_var_diff][:SNP_no], columns = np.arange(1, self.cell_total + 1)), row_cluster = False, col_cluster = False, col_colors = clus_colors, figsize = (20, SNP_no * 0.6), cmap = cmap, vmin = 0, vmax = 1)
+    
     elif SNP_ranking == 'AF_diff':
 
         AF_sorted = self.AF_filtered_missing_to_nan[self.cell_sorted, :][:, self.rank_SNP_AF_diff].T
@@ -2553,9 +2575,9 @@ def heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fon
     SNP_cluster_specified_AF_filtered_missing_to_mean = self.SNP_cluster_AF_filtered_missing_to_mean[cluster_order, :]
     SNP_cluster_specified_AF_filtered_missing_to_nan = self.SNP_cluster_AF_filtered_missing_to_nan[cluster_order, :]
 
-    # ratio_logit_var_specified = np.clip(np.min(SNP_cluster_specified_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
+    # ratio_logit_var_specified = np.clip(np.mean(SNP_cluster_specified_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
     
-    ratio_logit_var_specified = np.clip(np.mean(SNP_cluster_specified_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
+    ratio_logit_var_specified = np.clip(np.min(SNP_cluster_specified_logit_var, 0) / self.SNP_logit_var_original[self.SNP_filter], 0.01, None)
     f_stat_specified = np.clip(1 / ratio_logit_var_specified, 1.001, 20)
     df_bulk = self.cell_total - 1
     df_cluster_specified = np.array(list(map(lambda x: cluster_size_specified[x], np.argmin(SNP_cluster_specified_logit_var, 0)))) - 1
