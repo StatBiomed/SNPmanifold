@@ -248,7 +248,7 @@ class SNP_VAE:
             colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
 
         SNP_ranking: string
-            method for ranking SNPs, 'variance' or 'AF_diff' (default: 'AF_diff')
+            method for ranking SNPs, 'variance_ratio' or 'variance_diff' or 'AF_diff' (default: 'AF_diff')
 
         tree_fig_size: tuple of numbers with length 2
             figure size of phylogenetic tree (default: (12, 10))
@@ -338,7 +338,7 @@ class SNP_VAE:
             colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
 
         SNP_ranking: string
-            method for ranking SNPs, 'variance' or 'AF_diff' (default: 'AF_diff')
+            method for ranking SNPs, 'variance_ratio' or 'variance_diff' or 'AF_diff' (default: 'AF_diff')
             
         """
 
