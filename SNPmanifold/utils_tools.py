@@ -391,7 +391,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
     self.SNP_logit_var = SNP_logit_var
     self.SNP_logit_var_original = SNP_logit_var_original
-    self.SNP_var_missing_to_mean = self.SNP_var_missing_to_mean
+    self.SNP_var_missing_to_mean = SNP_var_missing_to_mean
 
     if SNP_filtering == 'logit-variance':
     
