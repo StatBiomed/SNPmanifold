@@ -85,7 +85,7 @@ class SNP_VAE:
             what to do for cells with 0 oberserved SNPs after filtering (default: 'skip')
 
         SNP_filtering: string
-            'logit-variance' or variance-mean ratio 'VMR' (default: 'logit-variance') 
+            'logit-variance' or variance-mean ratio 'VMR' or logit-variance-mean ratio 'LVMR' (default: 'logit-variance') 
 
         UMI_correction_before_filtering: boolean
             for UMI_correction = positive only, if True, add pseudocounts to AD and DP matrices before the last SNP filtering (default: False)
