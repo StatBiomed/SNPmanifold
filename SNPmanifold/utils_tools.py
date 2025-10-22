@@ -44,7 +44,7 @@ def moving_average(a, n):
     return ret[n-1: ] / n
 
 
-def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, SNP_VMR_threshold, filtering_only, num_neighbour, what_to_do, SNP_filtering, UMI_correction_before_filtering):
+def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, SNP_VMR_threshold, SNP_LVMR_threshold, filtering_only, num_neighbour, what_to_do, SNP_filtering, UMI_correction_before_filtering):
     
     """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -66,6 +66,9 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         SNP_VMR_threshold: float
             minimal variance-mean ratio for a SNP to be included for analysis, input after showing the plot if None
 
+        SNP_LVMR_threshold: float
+            minimal logit-variance-mean ratio for a SNP to be included for analysis, input after showing the plot if None
+
         filtering_only: boolean
             if True, it does not process AF matrices which are required for subsequent analyses in order to speed up
 
@@ -76,7 +79,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             what to do for cells with 0 oberserved SNPs after filtering
 
         SNP_filtering: string
-            'logit-variance' or variance-mean ratio 'VMR' 
+            'logit-variance' or variance-mean ratio 'VMR' or logit-variance-mean-ratio 'LVMR'
 
         UMI_correction_before_filtering: boolean
             for UMI_correction = positive only, if True, add pseudocounts to AD and DP matrices before the last SNP filtering
@@ -132,7 +135,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
 
         SNP_var_missing_to_mean = torch.var(self.AF_raw_missing_to_mean[cell_filter, :], 0).cpu().numpy()
 
-    SNP_logit_var_original = torch.var(torch.logit(torch.tensor((self.AD_raw[cell_filter, :] + 1) / (self.DP_raw[cell_filter, :] + 2)).float(), eps = 0.01), 0).cpu().numpy()
+    SNP_logit_var_original = torch.var(torch.logit(self.AF_raw_missing_to_mean[cell_filter, :], eps = 0.01), 0).cpu().numpy()
 
     if SNP_filtering == 'logit-variance':
 
@@ -181,6 +184,28 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             
         SNP_VMR_filter = SNP_VMR > SNP_VMR_threshold
         SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_VMR_filter)
+        cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
+
+    elif SNP_filtering == 'LVMR':
+
+        AF_mean_bulk = np.sum(self.AD_raw, 0) / np.sum(self.DP_raw, 0)
+        AF_abs_mean_bulk = 0.5 - np.abs(AF_mean_bulk - 0.5)
+
+        SNP_LVMR = SNP_logit_var / (AF_abs_mean_bulk + 0.01)
+
+        plt.figure(figsize = (10, 7))
+        plt.title("SNPs sorted by logit-variance-mean ratio")
+        plt.plot(np.arange(np.sum(SNP_DPmean_filter)) + 1, np.flip(np.sort(SNP_LVMR[SNP_DPmean_filter])))
+        plt.ylabel("Variance-mean ratio of SNP")
+        plt.xlabel("SNP")
+        plt.show()
+
+        if SNP_LVMR_threshold == None:
+        
+            SNP_LVMR_threshold = float(input("Please determine y-axis threshold in the plot to filter low-quality SNPs with low logit-variance-mean ratio.   "))
+            
+        SNP_LVMR_filter = SNP_LVMR > SNP_LVMR_threshold
+        SNP_filter = np.logical_and(SNP_DPmean_filter, SNP_LVMR_filter)
         cell_SNPread_filtered = np.sum(self.DP_raw[cell_filter, :][:, SNP_filter] > 0, 1)
     
     while (cell_SNPread_filtered == 0).any():
@@ -404,6 +429,12 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
         self.SNP_VMR = SNP_VMR
         self.SNP_VMR_threshold = SNP_VMR_threshold
         self.SNP_VMR_filter = SNP_VMR_filter
+
+    elif SNP_filtering == 'LVMR':
+
+        self.SNP_LVMR = SNP_LVMR
+        self.SNP_LVMR_threshold = SNP_LVMR_threshold
+        self.SNP_LVMR_filter = SNP_LVMR_filter
 
     self.SNP_filter = SNP_filter
     self.cell_SNPread_filtered = cell_SNPread_filtered
