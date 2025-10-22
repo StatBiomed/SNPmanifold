@@ -53,7 +53,7 @@ class SNP_VAE:
         self.UMI_correction = UMI_correction
         load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior)
         
-    def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None, SNP_VMR_threshold = None, filtering_only = False, num_neighbour = 3, what_to_do = 'skip', SNP_filtering = 'VMR', UMI_correction_before_filtering = False):
+    def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None, SNP_VMR_threshold = None, filtering_only = False, num_neighbour = 3, what_to_do = 'skip', SNP_filtering = 'logit-variance', UMI_correction_before_filtering = False):
         
         """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -85,7 +85,7 @@ class SNP_VAE:
             what to do for cells with 0 oberserved SNPs after filtering (default: 'skip')
 
         SNP_filtering: string
-            'logit-variance' or variance-mean ratio 'VMR' (default: 'VMR') 
+            'logit-variance' or variance-mean ratio 'VMR' (default: 'logit-variance') 
 
         UMI_correction_before_filtering: boolean
             for UMI_correction = positive only, if True, add pseudocounts to AD and DP matrices before the last SNP filtering (default: False)
