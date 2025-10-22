@@ -53,7 +53,7 @@ class SNP_VAE:
         self.UMI_correction = UMI_correction
         load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior)
         
-    def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None, SNP_VMR_threshold = None, filtering_only = False, num_neighbour = 3, what_to_do = 'skip', SNP_filtering = 'logit-variance', UMI_correction_before_filtering = False):
+    def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None, SNP_VMR_threshold = None, SNP_LVMR_threshold = None, filtering_only = False, num_neighbour = 3, what_to_do = 'skip', SNP_filtering = 'logit-variance', UMI_correction_before_filtering = False):
         
         """
         Filter low quality cells and SNPs based on number of observed SNPs for each cell, mean coverage of each SNP, and logit-variance of each SNP
@@ -75,6 +75,9 @@ class SNP_VAE:
         SNP_VMR_threshold: float
             minimal variance-mean ratio for a SNP to be included for analysis, input after showing the plot if None (default: None)
 
+        SNP_LVMR_threshold: float
+            minimal logit-variance-mean ratio for a SNP to be included for analysis, input after showing the plot if None (default: None)
+
         filtering_only: boolean
             if True, it does not process AF matrices which are required for subsequent analyses in order to speed up (default: False)
 
@@ -91,7 +94,7 @@ class SNP_VAE:
             for UMI_correction = positive only, if True, add pseudocounts to AD and DP matrices before the last SNP filtering (default: False)
         """
         
-        filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, SNP_VMR_threshold, filtering_only, num_neighbour, what_to_do, SNP_filtering, UMI_correction_before_filtering)
+        filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold, SNP_logit_var_threshold, SNP_VMR_threshold, SNP_LVMR_threshold, filtering_only, num_neighbour, what_to_do, SNP_filtering, UMI_correction_before_filtering)
         
     def training(self, num_epoch = 2000, stepsize = 0.0001, z_dim = None, beta = 0, num_batch = 5, is_cuda = True):
         
