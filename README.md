@@ -4,7 +4,7 @@ SNPmanifold is a Python package that learns a representative manifold for single
 
 SNPmanifold first performs simple filtering on AD matrix and DP matrix for high-quality cells and SNPs. It then trains VAE and UMAP to learn a representative manifold for single cells according to their allele frequency of different SNPs (AF = AD/DP). Finally, it classifies cells into clones and infer their phylogeny based on the manifold. 
 
-## **Testing feature for single-cell somatic mutation and mitochondrial data
+## ** Testing feature for single-cell somatic mutation and mitochondrial data
 
 The default configuration for SNPmanifold now is SNP_VAE(SNPread = "normalized", missing_value = 0.5, UMI_correction = None), which works well for distinct single-cell germline mutations. We are now actively exploring an alternative configuration of SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = None) or SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = 'positive') which seems to work better in single-cell somatic mutation and mitochondrial data where coverage is imbalanced. You may want to use this alternative configuration if you are exploring these types of data.
 
