@@ -6,7 +6,7 @@ SNPmanifold first performs simple filtering on AD matrix and DP matrix for high-
 
 ## ** Testing feature for mitochondrial data and somatic mutation
 
-The default configuration for SNPmanifold now is SNP_VAE(SNPread = "normalized", missing_value = 0.5, UMI_correction = None), which works well for distinct single-cell germline mutations. We are now actively exploring an alternative configuration of SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = None) or SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = 'positive') which seems to work better in mitochondrial data and single-cell/spatial somatic mutation where coverage is imbalanced. You may want to use this alternative configuration if you are exploring these types of data.
+The default configuration for SNPmanifold now is SNP_VAE(SNPread = "normalized", missing_value = 0.5, UMI_correction = None), which works well for distinct single-cell germline mutations. We are now actively exploring an alternative configuration of SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = None) or SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = 'positive') which seems to work better in mitochondrial data and single-cell/spatial somatic mutation where coverage is imbalanced. You should try these two alternative configurations if you are exploring these types of data.
 
 ## Installation
 
