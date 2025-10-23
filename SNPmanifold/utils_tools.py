@@ -73,7 +73,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             if True, it does not process AF matrices which are required for subsequent analyses in order to speed up
 
         num_neighbour: integer
-            for missing_value = neighbour only, number of neighbouring cells for imputation
+            for missing_value = 'KNN' only, number of k-nearest neighbouring cells for imputation
 
         what_to_do: string
             what to do for cells with 0 oberserved SNPs after filtering
@@ -296,11 +296,11 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             AF_filtered_positive_corrected_missing_to_mean[np.isnan(AF_filtered_positive_corrected_missing_to_mean)] = np.outer(np.ones(cell_total), AF_filtered_positive_corrected_mean)[np.isnan(AF_filtered_positive_corrected_missing_to_mean)]
             AF_filtered_positive_corrected_missing_to_mean = torch.tensor(AF_filtered_positive_corrected_missing_to_mean).float()
 
-        if self.missing_value == "neighbour":
+        if self.missing_value == "KNN":
 
             if self.UMI_correction == 'positive':
 
-                print('Imputing allele frequency using neighbouring cells.')
+                print('Imputing allele frequency using k-nearest neighbouring cells.')
                 
                 binomial_distance = nn.BCELoss(reduction = 'none')
                 pair_binomial_distance = np.empty((cell_total, cell_total))
@@ -458,7 +458,7 @@ def filter_data(self, save_memory, cell_SNPread_threshold, SNP_DPmean_threshold,
             self.AF_filtered_positive_corrected_missing_to_nan = AF_filtered_positive_corrected_missing_to_nan
             self.AF_filtered_positive_corrected_missing_to_mean = AF_filtered_positive_corrected_missing_to_mean
 
-        if self.missing_value == "neighbour":
+        if self.missing_value == "KNN":
 
             if self.UMI_correction == 'positive':
 
