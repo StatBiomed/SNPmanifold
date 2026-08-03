@@ -6,21 +6,23 @@ SNPmanifold first performs simple filtering on AD matrix and DP matrix for high-
 
 ## ** Testing feature for mitochondrial data and somatic mutation
 
-The default configuration for SNPmanifold now is SNP_VAE(SNPread = "normalized", missing_value = 0.5, UMI_correction = None), which works well for distinct single-cell germline mutations. We are now actively exploring an alternative configuration of SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = None) or SNP_VAE(SNPread = "unnormalized", missing_value = "neighbour", UMI_correction = 'positive') which seems to work better in mitochondrial data and single-cell/spatial somatic mutation where coverage is imbalanced. You should try these two alternative configurations if you are exploring these types of data.
+The default configuration for SNPmanifold now is SNP_VAE(SNPread = "normalized", missing_value = 0.5, UMI_correction = None), which works well for distinct single-cell germline mutations. We are now actively exploring an alternative configuration of SNP_VAE(SNPread = "unnormalized", missing_value = "KNN", UMI_correction = None) or SNP_VAE(SNPread = "unnormalized", missing_value = "KNN", UMI_correction = 'positive') which seems to work better in mitochondrial data and single-cell/spatial somatic mutation where coverage is imbalanced. You should try these two alternative configurations if you are exploring these types of data.
+
+Some results are available at https://github.com/HoiManC/Spatial-MT-SNV.
 
 ## Installation
 
 Quick install can be achieved via pip (python 3.8 needed)
 
 ```bash
-# for published version
-pip install -U SNPmanifold==0.0.9
+# for stable version
+pip install -U SNPmanifold==1.0.0
 
 # or developing version
 pip install -U git+https://github.com/StatBiomed/SNPmanifold
 ```
 
-Or set a conda environment before installing (credits to Xinyi Lin).
+Or set a conda environment before installing.
 Replace `$myenv` with the environment name you prefer.
 
 ```bash
@@ -48,10 +50,12 @@ from SNPmanifold import SNP_VAE
 
 * The [demo page](https://snpmanifold.readthedocs.io/en/latest/SNPmanifold_demo.html) 
   and notebook [SNPmanifold_demo.ipynb](./SNPmanifold_demo.ipynb) show 
-  a demo for quick usage of SNPmanifold on MKN45 cancer cell line using 
+  a demo for quick usage of SNPmanifold on 10X visium (prostate cancer) using 
   mitochondrial SNPs.
 
 * See how to use it via the [API page](https://snpmanifold.readthedocs.io/en/latest/API.html#main-object).
+
+3. Save results using save_h5ad(path), SNPmanifold_model.save_umap_plot(path), SNPmanifold_model.save_AF_plot(path).
 
 ## FAQ
 
@@ -65,7 +69,7 @@ If you have any questions regarding SNPmanifold, you can email Kevin Chung direc
 
 2. How to match input cells (or SNPs) before filtering and after filtering in SNPmanifold?
 
-   You can use attribute cell_filter (or SNP_filter) where unfiltered_cellbarcode[cell_filter] = filtered_cellbarcode.
+   You can use attribute cell_filter (or SNP_filter) where unfiltered_cellbarcode[cell_filter] = filtered_cellbarcode. Alternatively you can access cell names in h5ad from save_h5ad(path).
 
 3. Where to find cell barcodes after using cellsnp-lite?
 
