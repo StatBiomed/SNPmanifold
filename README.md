@@ -55,7 +55,7 @@ from SNPmanifold import SNP_VAE
 
 * See how to use it via the [API page](https://snpmanifold.readthedocs.io/en/latest/API.html#main-object).
 
-3. Save results using save_h5ad(path), SNPmanifold_model.save_umap_plot(path), SNPmanifold_model.save_AF_plot(path).
+3. Save results using save_h5ad(path), save_umap_plot(path), save_AF_plot(path).
 
 ## FAQ
 
