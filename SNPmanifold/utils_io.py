@@ -30,7 +30,7 @@ def read_VCF_gz(path):
     ).rename(columns={'#CHROM': 'CHROM'})
 
 
-def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
+def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, cell_name, prior):
     
     """
     Load AD and DP matrices, VCF.gz file or variant_name.tsv file for subsequent analyses in SNP_VAE 
@@ -54,6 +54,9 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     
     variant_name: string
         path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
+
+    cell_name: string
+        path of cell_name.tsv file which is a list of custom cell name stored in pandas dataframe without header and index    
 
     SNPread: string
         optional observed-SNP normalization, 'normalized' or 'unnormalized'
@@ -96,6 +99,22 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
         AD_raw = mmread(AD).toarray().T
         DP_raw = mmread(DP).toarray().T
 
+    if path != None:
+
+        cell_index = pd.read_csv(path + '/cellSNP.samples.tsv', sep = '\t', header = None)
+        is_cell_name = True
+    
+    elif path == None:
+
+        if cell_name != None:
+
+            cell_index = pd.read_csv(cell_name, sep = '\t', header = None)
+            is_cell_name = True
+
+        elif cell_name == None:
+
+            is_cell_name = False
+
     if self.UMI_correction == 'negative':
 
         WT_raw = np.clip(DP_raw - AD_raw - 1, 0, None)
@@ -130,6 +149,8 @@ def load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior):
     self.is_VCF = is_VCF
     self.AD_raw = AD_raw
     self.DP_raw = DP_raw
+    self.cell_index = cell_index
+    self.is_cell_name = is_cell_name
     self.AF_mean = AF_mean
     self.AF_raw_missing_to_mean = AF_raw_missing_to_mean
     self.AF_raw_missing_to_nan = AF_raw_missing_to_nan

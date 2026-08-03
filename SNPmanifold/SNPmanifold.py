@@ -1,11 +1,11 @@
 import matplotlib as mpl
 
 from .utils_io import load_data
-from .utils_tools import filter_data, summary_filtering, train_VAE, summary_training, umap_retrain, latent_clustering, summary_clustering, tree, summary_phylogeny, scatter_AF, heatmap_SNP, heatmap_cluster
+from .utils_tools import filter_data, summary_filtering, train_VAE, summary_training, umap_retrain, latent_clustering, summary_clustering, tree, summary_phylogeny, scatter_AF, heatmap_SNP, heatmap_cluster, save_h5ad_function, save_umap_plot_function, save_AF_plot_function
 
 class SNP_VAE:
     
-    def __init__(self, path = None, SNP_mask = [], AD = None, DP = None, VCF = None, variant_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized", prior = None, UMI_correction = None):
+    def __init__(self, path = None, SNP_mask = [], AD = None, DP = None, VCF = None, variant_name = None, cell_name = None, SNPread = "normalized", missing_value = 0.5, cell_weight = "unnormalized", prior = None, UMI_correction = None):
         
         """
         Load AD and DP matrices, VCF.gz file or variant_name.tsv file for subsequent analyses in SNP_VAE 
@@ -29,6 +29,9 @@ class SNP_VAE:
 
         variant_name: string
             path of variant_name.tsv file which is a list of custom variant name stored in pandas dataframe without header and index
+
+        cell_name: string
+            path of cell_name.tsv file which is a list of custom cell name stored in pandas dataframe without header and index
             
         SNPread: string
             optional observed-SNP normalization, 'normalized' or 'unnormalized' (default: 'normalized')
@@ -51,7 +54,7 @@ class SNP_VAE:
         self.missing_value = missing_value
         self.cell_weight = cell_weight
         self.UMI_correction = UMI_correction
-        load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, prior)
+        load_data(self, path, SNP_mask, AD, DP, VCF, variant_name, cell_name, prior)
         
     def filtering(self, save_memory = False, cell_SNPread_threshold = None, SNP_DPmean_threshold = None, SNP_logit_var_threshold = None, SNP_VMR_threshold = None, SNP_LVMR_threshold = None, filtering_only = False, num_neighbour = 3, what_to_do = 'skip', SNP_filtering = 'logit-variance', UMI_correction_before_filtering = False):
         
@@ -346,3 +349,81 @@ class SNP_VAE:
         """
 
         heatmap_cluster(self, cluster_order, SNP_no, dpi, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking)
+
+
+    def save_h5ad(self, path_h5ad):
+
+        """
+        Save results as an h5ad file
+    
+        Parameters
+        ----------
+        path_h5ad: string
+            saving path of h5ad file
+            
+        """
+
+        save_h5ad_function(self, path_h5ad)
+
+
+    def save_umap_plot(self, path_umap_plot, fig_format = 'pdf', dpi = mpl.rcParams['figure.dpi']):
+
+        """
+        Save UMAP plot of the embedding
+    
+        Parameters
+        ----------
+        path_umap_plot: string
+            saving path of UMAP plot
+        
+        fig_format: string
+            format of plt.savefig() (default: 'pdf')
+    
+        dpi: float
+            dpi resolution for figure
+            
+        """
+
+        save_umap_plot_function(self, path_umap_plot, fig_format, dpi)
+    
+    
+    def save_AF_plot(self, path_AF_plot, fig_format = 'pdf', dpi = mpl.rcParams['figure.dpi'], SNP_no = 50, bad_color = "blue", fontsize_c = None, fontsize_x = None, fontsize_y = None, cmap_heatmap = mpl.colormaps['rocket'], SNP_ranking = 'AF_diff'):
+
+        """
+        Save allele frequency heatmap
+    
+        Parameters
+        ----------
+        path_AF_plot: string
+            saving path of allele frequency heatmap
+    
+        fig_format: string
+            format of plt.savefig() (default: 'pdf')
+    
+        dpi: float
+            dpi resolution for figure
+    
+        SNP_no:
+            number of top-ranked SNPs to be visualized in heatmap (default: 50)
+            
+        bad_color: string
+            color of heatmap when allele frequency is missing, i.e. DP = 0 (default: 'blue')
+            
+        fontsize_c: float
+            fontsize of cluster labels on heatmap
+        
+        fontsize_x: float
+            fontsize of cell labels on heatmap
+        
+        fontsize_y: float
+            fontsize of SNP labels on heatmap
+        
+        cmap_heatmap:
+            colormap used for heatmap visualization (default: mpl.colormaps['rocket'])
+    
+        SNP_ranking: string
+            method for ranking SNPs, 'variance_ratio' or 'variance_diff' or 'AF_diff' (default: 'AF_diff')
+            
+        """
+        
+        save_AF_plot_function(self, path_AF_plot, fig_format, dpi, SNP_no, bad_color, fontsize_c, fontsize_x, fontsize_y, cmap_heatmap, SNP_ranking)
